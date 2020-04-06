@@ -16,7 +16,7 @@ import org.jpl7.Term;
 public class App {
 	public static void main(String[] args) {
 		App app = new App();
-		app.consultFile("Intepreter.pl");
+		app.consultFile("Interpreter.pl");
 		String fileName = "InputFile.txt";
 		Term parseTree = app.createParseTree(fileName);
 		System.out.println("Parse Tree -> " + parseTree);
