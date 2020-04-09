@@ -4,7 +4,7 @@ begin
 	var abcdef;
 	var y = true;
 	display(x+5);
-	if(x+y==y+z) 
+	if(x+y==y+xyz) 
 		then x++; 
 	else y++; 
 	endif;
@@ -20,14 +20,5 @@ begin
 		else y++; 
 		endif;
 	endwhile;
-	if (true)
-		then 
-		while(x==y)
-			do if(x+y==y+z) 
-				then x++; 
-			else y++; 
-			endif;
-		endwhile;
-	endif;
 	display((x+y)*(x-y)/(x+x+x+x*x*x*x-x-x-x-x));
 end.

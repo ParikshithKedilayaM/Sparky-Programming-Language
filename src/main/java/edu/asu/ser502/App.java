@@ -6,7 +6,6 @@ import java.util.Map;
 import org.jpl7.Atom;
 import org.jpl7.Query;
 import org.jpl7.Term;
-
 /**
  * Binding class for lexer, parser and compiler.
  * 
@@ -16,11 +15,33 @@ import org.jpl7.Term;
 public class App {
 	public static void main(String[] args) {
 		App app = new App();
-		app.consultFile("Interpreter.pl");
-		String fileName = "InputFile.txt";
-		Term parseTree = app.createParseTree(fileName);
-		System.out.println("Parse Tree -> " + parseTree);
-		app.evaluateProgram(parseTree);
+		app.run("InputFile.txt");
+	}
+	
+	public boolean run(String fileName) {
+		consultFile("Intepreter.pl");
+		boolean res = evaluateTokens(fileName);
+		System.out.println(res);
+		return res;
+//		Term parseTree = createParseTree(fileName);
+//		System.out.println("Parse Tree -> " + parseTree);
+//		evaluateProgram(parseTree);
+	}
+	
+	private boolean evaluateTokens(String fileName) {
+		Tokens tokens = new Tokens();
+		ArrayList<String> tokensGenerated = tokens.generateTokensFromFile(fileName);
+		String tokensList = "";
+		for (String token : tokensGenerated) {
+			tokensList += token + ",";
+		}
+		tokensList = tokensList.substring(0, tokensList.length() - 1);
+		tokensList = tokensList.replaceAll("[']", "\"'\"");
+		tokensList = tokensList.replaceAll(",,,", ",',',");
+		tokensList = tokensList.replaceAll("[(]", "'('");
+		tokensList = tokensList.replaceAll("[)]", "')'");
+		Query parseTreeQuery = new Query("program([" + tokensList + "],[]).");
+		return parseTreeQuery.hasSolution() ? true : false;
 	}
 
 	/**
@@ -44,15 +65,17 @@ public class App {
 	private Term createParseTree(String fileName) {
 		Tokens tokens = new Tokens();
 		ArrayList<String> tokensGenerated = tokens.generateTokensFromFile(fileName);
-		String query = "";
+		String tokensList = "";
 		for (String token : tokensGenerated) {
-			query += token + ",";
+			tokensList += token + ",";
 		}
-		query = query.substring(0, query.length() - 1);
-		query = query.replaceAll("[(]", "'('");
-		query = query.replaceAll("[)]", "')'");
-		Query parseTreeQuery = new Query("expr(R, [" + query + "],[]).");
-		return parseTreeQuery.oneSolution().get("R");
+		tokensList = tokensList.substring(0, tokensList.length() - 1);
+		tokensList = tokensList.replaceAll("[']", "\"'\"");
+		tokensList = tokensList.replaceAll(",,,", ",',',");
+		tokensList = tokensList.replaceAll("[(]", "'('");
+		tokensList = tokensList.replaceAll("[)]", "')'");
+		Query parseTreeQuery = new Query("program(R, [" + tokensList + "],[]).");
+		return parseTreeQuery.hasSolution() ? parseTreeQuery.oneSolution().get("R") : null;
 	}
 
 	/**
@@ -62,7 +85,7 @@ public class App {
 	 * @param parseTree - parse tree generated in createParseTree()
 	 */
 	private void evaluateProgram(Term parseTree) {
-		Query evaluationQuery = new Query("eval_expr(" + parseTree + ",[(x,2),(y,3),(z,5)],S)");
+		Query evaluationQuery = new Query("program(" + parseTree + ",[],S)");
 		Map<String, Term>[] result = evaluationQuery.allSolutions();
 		for (int i = 0; i < result.length; i++) {
 			System.out.println("Result = " + result[i].get("S"));

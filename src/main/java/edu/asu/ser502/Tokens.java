@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
- * Class toread a program from a file and generate list of tokens
+ * Class to read a program from a file and generate list of tokens
  * 
  * @author Parikshith Kedilaya Mallar
  *
@@ -57,7 +57,7 @@ public class Tokens {
 	 * @param input - one line of code from the program file
 	 */
 	private void generateTokens(String input) {
-		String delimiters = ":!;.<>+()=\t \n*-/";
+		String delimiters = ":!;.<>+()=\t \n*-/'|";
 		StringTokenizer tokenizer = new StringTokenizer(input, delimiters, true);
 		while (tokenizer.hasMoreTokens()) {
 			String nextToken = tokenizer.nextToken();
