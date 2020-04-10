@@ -1,0 +1,14 @@
+for milestone 1:
+Chandan: Did initial feasibility check using Java-antlr.
+Nagarjun:Did initial feasibility check using YACC.
+Parikshith:Did initial feasibility check using JAVA-jpl.
+Ashutosh:Did initial feasibility check using python-pylog.
+
+Ashutosh & Chandan: Built the grammar for command, expression, declaration, boolean.
+Nagarjun & Parikshith: Built the grammar for while loop, for loop, conditional constructs. 
+
+Everyone contributed individually towards the testing of the grammar.
+
+for milestone 2:
+Chandan & Nagarjun: will be building the lexical analyzer and parse tree generator.
+Parikshith & Ashutosh: will be building the interpreter and integration of all components.
