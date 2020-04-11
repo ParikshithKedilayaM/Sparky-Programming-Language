@@ -1,6 +1,6 @@
 package edu.asu.ser502;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.jpl7.Atom;
@@ -47,14 +47,13 @@ public class App {
 	 */
 	private Term createParseTree(String fileName) {
 		Tokens tokens = new Tokens();
-		ArrayList<String> tokensGenerated = tokens.generateTokensFromFile(fileName);
+		List<String> tokensGenerated = tokens.generateTokensFromFile(fileName);
 		String tokensList = "";
 		for (String token : tokensGenerated) {
 			tokensList += token + ",";
 		}
 		if (tokensList != null) {
 			tokensList = tokensList.substring(0, tokensList.length() - 1);
-			tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
 			tokensList = tokensList.replaceAll(",,,", ",\',\',");
 			tokensList = tokensList.replaceAll("[(]", "'('");
 			tokensList = tokensList.replaceAll("[)]", "')'");

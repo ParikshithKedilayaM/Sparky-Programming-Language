@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -15,7 +16,7 @@ import java.util.StringTokenizer;
  */
 public class Tokens {
 
-	private ArrayList<String> tokens;
+	private List<String> tokens;
 
 	public Tokens() {
 		tokens = new ArrayList<String>();
@@ -27,7 +28,7 @@ public class Tokens {
 	 * @param fileName - File containing the program
 	 * @return - arraylist of generated tokens
 	 */
-	public ArrayList<String> generateTokensFromFile(String fileName) {
+	public List<String> generateTokensFromFile(String fileName) {
 		BufferedReader buffer = null;
 		try {
 			buffer = new BufferedReader(new FileReader(fileName));
@@ -57,7 +58,7 @@ public class Tokens {
 	 * @param input - one line of code from the program file
 	 */
 	private void generateTokens(String input) {
-		String delimiters = ":!;.<>+()=\t \n*-/',\"|";
+		String delimiters = ":!;.<>+()=\t \n*-/,|";
 		StringTokenizer tokenizer = new StringTokenizer(input, delimiters, true);
 		while (tokenizer.hasMoreTokens()) {
 			String nextToken = tokenizer.nextToken();
