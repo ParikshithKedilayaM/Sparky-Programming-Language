@@ -22,10 +22,10 @@ public class App {
 		consultFile("Intepreter.pl");
 		boolean res = evaluateTokens(fileName);
 		System.out.println(res);
-		return res;
-//		Term parseTree = createParseTree(fileName);
-//		System.out.println("Parse Tree -> " + parseTree);
+		Term parseTree = createParseTree(fileName);
+		System.out.println("Parse Tree -> " + parseTree);
 //		evaluateProgram(parseTree);
+		return res;
 	}
 	
 	private boolean evaluateTokens(String fileName) {
@@ -36,7 +36,7 @@ public class App {
 			tokensList += token + ",";
 		}
 		tokensList = tokensList.substring(0, tokensList.length() - 1);
-		tokensList = tokensList.replaceAll("[']", "\"'\"");
+		tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
 		tokensList = tokensList.replaceAll(",,,", ",',',");
 		tokensList = tokensList.replaceAll("[(]", "'('");
 		tokensList = tokensList.replaceAll("[)]", "')'");
@@ -70,10 +70,11 @@ public class App {
 			tokensList += token + ",";
 		}
 		tokensList = tokensList.substring(0, tokensList.length() - 1);
-		tokensList = tokensList.replaceAll("[']", "\"'\"");
+		tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
 		tokensList = tokensList.replaceAll(",,,", ",',',");
 		tokensList = tokensList.replaceAll("[(]", "'('");
 		tokensList = tokensList.replaceAll("[)]", "')'");
+		System.out.println(tokensList);
 		Query parseTreeQuery = new Query("program(R, [" + tokensList + "],[]).");
 		return parseTreeQuery.hasSolution() ? parseTreeQuery.oneSolution().get("R") : null;
 	}
