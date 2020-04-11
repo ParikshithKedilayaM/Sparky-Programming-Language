@@ -6,6 +6,7 @@ import java.util.Map;
 import org.jpl7.Atom;
 import org.jpl7.Query;
 import org.jpl7.Term;
+
 /**
  * Binding class for lexer, parser and compiler.
  * 
@@ -17,31 +18,13 @@ public class App {
 		App app = new App();
 		app.run("InputFile.txt");
 	}
-	
+
 	public boolean run(String fileName) {
 		consultFile("Intepreter.pl");
-		boolean res = evaluateTokens(fileName);
-		System.out.println(res);
 		Term parseTree = createParseTree(fileName);
 		System.out.println("Parse Tree -> " + parseTree);
 //		evaluateProgram(parseTree);
-		return res;
-	}
-	
-	private boolean evaluateTokens(String fileName) {
-		Tokens tokens = new Tokens();
-		ArrayList<String> tokensGenerated = tokens.generateTokensFromFile(fileName);
-		String tokensList = "";
-		for (String token : tokensGenerated) {
-			tokensList += token + ",";
-		}
-		tokensList = tokensList.substring(0, tokensList.length() - 1);
-		tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
-		tokensList = tokensList.replaceAll(",,,", ",',',");
-		tokensList = tokensList.replaceAll("[(]", "'('");
-		tokensList = tokensList.replaceAll("[)]", "')'");
-		Query parseTreeQuery = new Query("program([" + tokensList + "],[]).");
-		return parseTreeQuery.hasSolution() ? true : false;
+		return parseTree == null ? false : true;
 	}
 
 	/**
@@ -69,12 +52,14 @@ public class App {
 		for (String token : tokensGenerated) {
 			tokensList += token + ",";
 		}
-		tokensList = tokensList.substring(0, tokensList.length() - 1);
-		tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
-		tokensList = tokensList.replaceAll(",,,", ",',',");
-		tokensList = tokensList.replaceAll("[(]", "'('");
-		tokensList = tokensList.replaceAll("[)]", "')'");
-		System.out.println(tokensList);
+		if (tokensList != null) {
+			tokensList = tokensList.substring(0, tokensList.length() - 1);
+			tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
+			tokensList = tokensList.replaceAll(",,,", ",\',\',");
+			tokensList = tokensList.replaceAll("[(]", "'('");
+			tokensList = tokensList.replaceAll("[)]", "')'");
+			System.out.println(tokensList);
+		}
 		Query parseTreeQuery = new Query("program(R, [" + tokensList + "],[]).");
 		return parseTreeQuery.hasSolution() ? parseTreeQuery.oneSolution().get("R") : null;
 	}
