@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>edu.asu</groupId>
-	<artifactId>ser502</artifactId>
+	<artifactId>sparky</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
     <build>
         <plugins>
@@ -20,7 +20,7 @@
     </build>
     <packaging>jar</packaging>
 
-	<name>ser502</name>
+	<name>sparky</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
