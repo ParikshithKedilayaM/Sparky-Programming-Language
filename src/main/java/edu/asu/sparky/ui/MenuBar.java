@@ -1,4 +1,4 @@
-package edu.asu.ser502.ui;
+package edu.asu.sparky.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +14,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-import edu.asu.ser502.App;
+import edu.asu.sparky.App;
 
 public class MenuBar extends JMenuBar implements ActionListener {
 

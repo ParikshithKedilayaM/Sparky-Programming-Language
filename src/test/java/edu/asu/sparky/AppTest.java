@@ -1,4 +1,4 @@
-package edu.asu.ser502;
+package edu.asu.sparky;
 
 import org.junit.jupiter.api.Test;
 

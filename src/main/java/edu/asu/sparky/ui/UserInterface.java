@@ -1,4 +1,4 @@
-package edu.asu.ser502.ui;
+package edu.asu.sparky.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
