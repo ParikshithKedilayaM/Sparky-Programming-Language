@@ -1,4 +1,4 @@
-1. First declare and then use for same variable, it fails.
+1. First declare and then use fr" keyword or same variable, it fails.
 var x, y ;
 var y := 10;
 
