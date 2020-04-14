@@ -1,5 +1,5 @@
 :- set_prolog_flag(double_quotes, string).
-
+%:- use_rendering(svgtree).
 endLine --> [;].
 endPeriod --> [.].
 equal --> [=].
@@ -21,9 +21,10 @@ declrList(t_declrList(X)) --> declR(X), endLine.
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],anystring(Y).
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
-declR(t_declr(X)) --> var, identifierList(X).
-identifierList(t_identifier(X)) --> identifier(X).
-identifierList(t_identifier(X,Y)) --> identifier(X),[','], identifierList(Y).
+declR(X) --> var, identifierList(X).
+identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
+identifierList(X) --> identifier(X).
+
 
 /*
 * Commands Parsing
@@ -87,8 +88,35 @@ term(X) --> factor(X).
 
 factor(t_bracket(X)) --> ['('],expr(X),[')'].
 factor(t_numeric(X)) --> digit(X).
-factor(t_identifier(X)) --> identifier(X).
+factor(X) --> identifier(X).
 factor(t_boolean(X)) --> booleanI(X).
 factor(t_string(X)) --> anystring(X).
 
 display(t_display(X)) --> [display],['('],expr(X),[')'].
+
+
+
+
+
+eval_program(t_program(X),FinalEnv) :- eval_block(X,[],FinalEnv).
+eval_block(t_block(X,Y), EnvIn, EnvOut) :- eval_declrList(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
+eval_declrList(t_declrList(X,Y),EnvIn, EnvOut) :- eval_declR(X,EnvIn, Env1), eval_declrList(Y, Env1, EnvOut).
+eval_declrList(t_declrList(X),EnvIn, EnvOut):- eval_declR(X,EnvIn, EnvOut).
+
+eval_declR(t_assign(X,Y), EnvIn, EnvOut) :- update(X,Y, EnvIn, EnvOut).
+eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- update(X,0,EnvIn,Env1), eval_declR(Y,Env1,EnvOut).
+eval_declR(X, EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
+
+
+eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
+eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
+eval_commandI(t_display(X),EnvIn, _) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).
+
+
+lookup(Id,[(Id,Val)|_],Val).
+lookup(Id,[_|T],Val):- lookup(Id,T,Val).
+
+update(Id,Val,[],[(Id,Val)]).
+update(Id,Val,[(Id,_)|T],[(Id,Val)|T]).
+update(Id,Val,[H|T],[H|R]):-H \=(Id,_),update(Id,Val,T,R).
+
