@@ -1,0 +1,4 @@
+1. First declare and then use for same variable, it fails.
+var x, y ;
+var y := 10;
+
