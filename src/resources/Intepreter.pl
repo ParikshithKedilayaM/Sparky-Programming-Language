@@ -40,7 +40,7 @@ commandI(X) --> ternaryEval(X).
 commandI(X) --> block(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
-commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Y),['"'].
+commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
 commandInitialize(t_commandInitialize(X,+,+)) --> identifier(X),[+,+].
 commandInitialize(t_commandInitialize(X,-,-)) --> identifier(X),[-,-].
 
