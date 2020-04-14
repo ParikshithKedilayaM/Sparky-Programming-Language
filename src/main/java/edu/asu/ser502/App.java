@@ -50,6 +50,10 @@ public class App {
 		List<String> tokensGenerated = tokens.generateTokensFromFile(fileName);
 		String tokensList = "";
 		for (String token : tokensGenerated) {
+			if(token.contains("\"")) {
+				String newToken =  token.substring(1, token.length() -1);
+				token = "\",\'"+newToken+"\',\"";
+			}
 			tokensList += token + ",";
 		}
 		if (tokensList != null) {
@@ -57,6 +61,7 @@ public class App {
 			tokensList = tokensList.replaceAll(",,,", ",\',\',");
 			tokensList = tokensList.replaceAll("[(]", "'('");
 			tokensList = tokensList.replaceAll("[)]", "')'");
+			tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
 			System.out.println(tokensList);
 		}
 		Query parseTreeQuery = new Query("program(R, [" + tokensList + "],[]).");

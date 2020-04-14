@@ -1,4 +1,3 @@
-:- set_prolog_flag(double_quotes, string).
 %:- use_rendering(svgtree).
 endLine --> [;].
 endPeriod --> [.].
@@ -9,7 +8,7 @@ end --> [end].
 
 digit(X) --> [X], {number(X)} .
 identifier(X) --> [X],{atom(X), X \= true, X \= false}.
-anystring(X) --> [X],{string(X)}.
+anystring(X) --> [X],{atom(X)}.
 
 program(t_program(X)) --> block(X),endPeriod.
 block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
@@ -19,8 +18,9 @@ block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 declrList(t_declrList(X,Y)) --> declR(X), endLine,declrList(Y).
 declrList(t_declrList(X)) --> declR(X), endLine.
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
-declR(t_assign(X,Y)) --> var, identifier(X),[:,=],anystring(Y).
+declR(t_assign_string(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
+declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
 identifierList(X) --> identifier(X).
@@ -40,6 +40,7 @@ commandI(X) --> ternaryEval(X).
 commandI(X) --> block(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
+commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Y),['"'].
 commandInitialize(t_commandInitialize(X,+,+)) --> identifier(X),[+,+].
 commandInitialize(t_commandInitialize(X,-,-)) --> identifier(X),[-,-].
 
@@ -90,7 +91,7 @@ factor(t_bracket(X)) --> ['('],expr(X),[')'].
 factor(t_numeric(X)) --> digit(X).
 factor(X) --> identifier(X).
 factor(t_boolean(X)) --> booleanI(X).
-factor(t_string(X)) --> anystring(X).
+%factor(t_string(X)) --> anystring(X).
 
 display(t_display(X)) --> [display],['('],expr(X),[')'].
 
