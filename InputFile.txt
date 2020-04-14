@@ -1,33 +1,25 @@
 begin
-	var x := 5;
-	var xyz := 10;
-	var abcdef;
-	var y := true;
-	display(x+5);
-	if(x+y==y+z) 
-		then x++; 
-	else y++; 
-	endif;
-	for(i:=1;i<10;i++)
-		do if(x+y==y+z) 
-			then x++; 
-		else y++; 
-		endif;
-	endfor;
-	while(x==y)
-		do if(x+y==y+z) 
-			then x++; 
-		else y++; 
-		endif;
-	endwhile;
-	if (true)
-		then 
-		while(x==y)
-			do if(x+y==y+z) 
-				then x++; 
-			else y++; 
-			endif;
-		endwhile;
-	endif;
-	display((x+y)*(x-y)/(x+x+x+x*x*x*x-x-x-x-x));
+	var x;
+	var y;
+	var u;
+	u:=2*x+y;    
+	begin
+		var v; 
+		var z;
+		v:=100;
+		z:=u+v ;
+		begin
+			var x;    
+			z:=z+10;   
+			while (! u == 0) do 
+				v:=y;   
+				v := 1;
+				while (! v == 0) do
+				z := z + 1 ; 
+				v := v - 1  ;
+				endwhile;
+		u := u - 1 ;
+	endwhile ;
+		end;
+	end;
 end.
