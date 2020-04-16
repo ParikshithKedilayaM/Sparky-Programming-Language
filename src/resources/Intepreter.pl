@@ -18,7 +18,7 @@ block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 declrList(t_declrList(X,Y)) --> declR(X), endLine,declrList(Y).
 declrList(t_declrList(X)) --> declR(X), endLine.
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
-declR(t_assign_string(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
+declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
@@ -87,11 +87,12 @@ term(t_mul(X,Y)) --> term(X), [*], factor(Y).
 term(t_div(X,Y)) --> term(X), [/], factor(Y).
 term(X) --> factor(X).
 
-factor(t_bracket(X)) --> ['('],expr(X),[')'].
-factor(t_numeric(X)) --> digit(X).
+factor(X) --> ['('],expr(X),[')'].
+factor(X) --> digit(X).
 factor(X) --> identifier(X).
 factor(t_boolean(X)) --> booleanI(X).
-%factor(t_string(X)) --> anystring(X).
+factor(t_string(X)) -->['"'], anystring(X),['"'].
+
 
 display(t_display(X)) --> [display],['('],expr(X),[')'].
 
@@ -111,7 +112,43 @@ eval_declR(X, EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
-eval_commandI(t_display(X),EnvIn, _) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).
+eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
+eval_commandI(t_display(X),EnvIn, _) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).%, file_write(Val).
+
+
+file_write(Val) :- write(Val).
+    
+    
+%Evaluate expression when t_add tree node is encountered
+eval_expr(t_add(X,Y),EnvIn, EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1), 
+    										eval_expr(Y,EnvOut1,EnvOut,Val2), 
+    										Val is Val1 + Val2.
+
+eval_expr(t_add(t_string(X),t_string(Y)),EnvIn, EnvOut, Val) :- 
+    										concat(X,Y,Val).
+
+%Evaluate expression when t_sub tree node is encountered
+eval_expr(t_sub(X,Y),EnvIn, EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1), 
+    										eval_expr(Y,EnvOut1,EnvOut,Val2), 
+    										Val is Val1 - Val2.
+
+%Evaluate expression when t_mul tree node is encountered
+eval_expr(t_mul(X,Y),EnvIn,EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1), 
+    										eval_expr(Y,EnvOut1,EnvOut,Val2), 
+    										Val is Val1 * Val2.
+
+%Evaluate expression when t_div tree node is encountered
+eval_expr(t_div(X,Y),EnvIn,EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1), 
+    										eval_expr(Y,EnvOut1,EnvOut,Val2), 
+    										Val is Val1 / Val2.
+
+%Evaluate expression when t_add tree node is encountered
+eval_expr(X,Env,Env,X) :- number(X).
+
+%Evaluate expression when t_add tree node is encountered
+eval_expr(X,EnvIn,EnvOut,Result) :- eval_id(X,EnvIn,EnvOut,Result).
+eval_expr(t_id_expr_equality(X,Y),EnvIn,EnvOut,Result):-eval_expr(Y,EnvIn,EnvOut1,Result), update(X,Result,EnvOut1,EnvOut).
+eval_id(X,EnvIn,EnvIn,Result):- lookup(X,EnvIn,Result).
 
 
 lookup(Id,[(Id,Val)|_],Val).
