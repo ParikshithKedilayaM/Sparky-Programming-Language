@@ -113,29 +113,29 @@ eval_declR(X, EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
 eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
-eval_commandI(t_display(X),EnvIn, _) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).%, file_write(Val).
+eval_commandI(t_display(X),EnvIn, Val) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).%, file_write(Val).
 
-
-file_write(Val) :- write(Val).
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
-eval_commandI(t_ifEval(X,Y)),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut,true),
-                                             eval_commandI(Y,EnvIn,EnvOut).
-eval_commandI(t_ifteEval(X,Y,_Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut,true),
-                                                 eval_commandI(Y,EnvIn,EnvOut).
-eval_commandI(t_ifteEval(X,_Y,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut,true),
-                                                 eval_commandI(Z,EnvIn,EnvOut).
+eval_commandI(t_ifEval(X,Y),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
+                                             eval_commandList(Y,EnvOut1,EnvOut).
+eval_commandI(t_ifteEval(X,Y,_Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
+                                                 eval_commandList(Y,EnvOut1,EnvOut).
+eval_commandI(t_ifteEval(X,_Y,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false),
+                                                 eval_commandList(Z,EnvOut1,EnvOut).
 %----------------------------------------------------------------------------------------------------------------------
 
 
+
+
 % Evaluation Logic for WHILE Loop--------------------------------------------------------------------------------------
-eval_commandI(t_whileEval(B,C),EnvIn,EnvOut):-eval_bool(B,EnvIn,Env1,true),
-                                           eval_commandI(C,Env1,Env2),
+eval_commandI(t_whileEval(B,C),EnvIn,EnvOut):-eval_bool(B,EnvIn,EnvIn,true),
+                                           eval_commandList(C,EnvIn,Env2),
                                            eval_commandI(t_whileEval(B,C),Env2,EnvOut).
 eval_commandI(t_whileEval(B,_C),Env,Env):-eval_bool(B,Env,Env,false).
 
 %----------------------------------------------------------------------------------------------------------------------
-
+file_write(Val) :- write(Val).
 % Boolean Evaluation Logic---------------------------------------------------------------------------------------------
 not(true,false).
 not(false,true).
@@ -146,6 +146,7 @@ equal(Val1,Val2,false):- Val1\=Val2.
 eval_bool(true,Env,Env,true).
 eval_bool(false,Env,Env,false).
 
+
 eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_bool(B,EnvIn,EnvOut,Val1),
                                                 not(Val1,Val).
 eval_bool(t_booleanExprEquals(E1,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
@@ -155,7 +156,6 @@ eval_bool(t_booleanExprNotEquals(E1,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,V
                                                          eval_expr(E2,Env1,NewEnv,Val2),
                                                          equal(Val1,Val2,Val3),
                                                          not(Val3,Val).
-
 %----------------------------------------------------------------------------------------------------------------------
 
 %Evaluate expression when t_add tree node is encountered
@@ -163,8 +163,10 @@ eval_expr(t_add(X,Y),EnvIn, EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1),
     										eval_expr(Y,EnvOut1,EnvOut,Val2), 
     										Val is Val1 + Val2.
 
-eval_expr(t_add(t_string(X),t_string(Y)),EnvIn, EnvOut, Val) :- 
-    										concat(X,Y,Val).
+
+%To be validated again
+
+eval_expr(t_add(t_string(X),t_string(Y)),Env, Env, Val) :- concat(X,Y,Val).
 
 %Evaluate expression when t_sub tree node is encountered
 eval_expr(t_sub(X,Y),EnvIn, EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1), 
