@@ -45,7 +45,7 @@ commandInitialize(t_commandInitialize(X,+,+)) --> identifier(X),[+,+].
 commandInitialize(t_commandInitialize(X,-,-)) --> identifier(X),[-,-].
 
 
-ifEval(t_ifEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [else],
+ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [else],
     						commandList(Z), [endif].
 ifEval(t_ifEval(X,Y)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [endif].
 
@@ -63,10 +63,10 @@ booleanComb(X) --> booleanI(X).
 booleanComb(X) --> boolean(X).
 booleanI(true) --> [true].
 booleanI(false) --> [false].
-boolean(t_boolean(!,X)) --> [!],booleanComb(X).
-boolean(t_boolean(X,=,=,Y)) --> expr(X),equal,equal,expr(Y).
-boolean(t_boolean(X,!,=,Y)) --> expr(X),[!],equal,expr(Y).
-boolean(t_boolean(X,Y,Z)) --> expr(X),conditional(Y),expr(Z).
+boolean(t_booleanNegate(!,X)) --> [!],booleanComb(X).
+boolean(t_booleanExprEquals(X,=,=,Y)) --> expr(X),equal,equal,expr(Y).
+boolean(t_booleanExprNotEquals(X,!,=,Y)) --> expr(X),[!],equal,expr(Y).
+boolean(t_booleanExprCond(X,Y,Z)) --> expr(X),conditional(Y),expr(Z).
 
 
 conditional(>) --> [>].
