@@ -23,7 +23,7 @@ declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
-identifierList(X) --> identifier(X).
+identifierList(t_id(X)) --> identifier(X).
 
 
 /*
@@ -107,13 +107,13 @@ eval_declrList(t_declrList(X),EnvIn, EnvOut):- eval_declR(X,EnvIn, EnvOut).
 
 eval_declR(t_assign(X,Y), EnvIn, EnvOut) :- update(X,Y, EnvIn, EnvOut).
 eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- update(X,0,EnvIn,Env1), eval_declR(Y,Env1,EnvOut).
-eval_declR(X, EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
+eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
 eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
-eval_commandI(t_display(X),EnvIn, Val) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).%, file_write(Val).
+eval_commandI(t_display(X),EnvIn,EnvIn) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).%, file_write(Val).
 
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
