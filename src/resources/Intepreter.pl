@@ -113,8 +113,7 @@ eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
 eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
-eval_commandI(t_display(X),EnvIn,EnvIn) :- lookup(X, EnvIn, Val),nl,write(X), write(=), write(Val).%, file_write(Val).
-
+eval_commandI(t_display(X),EnvIn,EnvIn) :- lookup(X, EnvIn, Val),write(X), write(=), write(Val),nl.
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
 eval_commandI(t_ifEval(X,Y),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
@@ -135,13 +134,52 @@ eval_commandI(t_whileEval(B,C),EnvIn,EnvOut):-eval_bool(B,EnvIn,EnvIn,true),
 eval_commandI(t_whileEval(B,_C),Env,Env):-eval_bool(B,Env,Env,false).
 
 %----------------------------------------------------------------------------------------------------------------------
-file_write(Val) :- write(Val).
+
+% Evaluation Logic for FOR Loop---------------------------------------------------------------------------
+
+eval_commandI(t_forEval(X,Y,Z,T),EnvIn,EnvOut) :- eval_commandI(X,EnvIn, EnvOut1), eval_for(Y,Z,T, EnvOut1, EnvOut).
+
+eval_for(Y,Z,T,EnvIn,EnvOut):-				 eval_bool(Y,EnvIn,EnvOut2,true),     
+    										 eval_commandI(Z,EnvOut2,EnvOut3),   
+    									     eval_commandList(T,EnvOut3, EnvOut4),  
+    										 eval_for(Y,Z,T,EnvOut4,EnvOut).
+    										
+
+
+eval_for(Y,_,_,EnvIn,EnvOut):-				 eval_bool(Y,EnvIn,EnvOut,false). 
+    								
+
+
+
+
+
+
+
+
+
 % Boolean Evaluation Logic---------------------------------------------------------------------------------------------
 not(true,false).
 not(false,true).
 
 equal(Val1,Val2,true):-Val1=Val2.
 equal(Val1,Val2,false):- Val1\=Val2.
+
+greaterThan(Val1,Val2,true) :- Val1 > Val2.
+greaterThan(Val1,Val2,false) :- Val1 =< Val2.
+
+lessThan(Val1,Val2,true) :- Val1 < Val2.
+lessThan(Val1,Val2,false) :- Val1 >= Val2.
+
+
+greaterThanorEqual(Val1,Val2,true) :- Val1 >= Val2.
+greaterThanorEqual(Val1,Val2,false) :- Val1 < Val2.
+
+lessThanorEqual(Val1,Val2,true) :- Val1 =< Val2.
+lessThanorEqual(Val1,Val2,false) :- Val1 > Val2.
+
+
+
+
 
 eval_bool(true,Env,Env,true).
 eval_bool(false,Env,Env,false).
@@ -156,6 +194,31 @@ eval_bool(t_booleanExprNotEquals(E1,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,V
                                                          eval_expr(E2,Env1,NewEnv,Val2),
                                                          equal(Val1,Val2,Val3),
                                                          not(Val3,Val).
+
+eval_bool(t_booleanExprCond(E1,<,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+                                                         eval_expr(E2,Env1,NewEnv,Val2),
+                                                         lessThan(Val1,Val2,Val).
+
+eval_bool(t_booleanExprCond(E1,>,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+                                                         eval_expr(E2,Env1,NewEnv,Val2),
+                                                         greaterThan(Val1,Val2,Val).
+
+eval_bool(t_booleanExprCond(E1,=<,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+                                                         eval_expr(E2,Env1,NewEnv,Val2),
+                                                         lessThanorEqual(Val1,Val2,Val).
+
+eval_bool(t_booleanExprCond(E1,<=,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+                                                         eval_expr(E2,Env1,NewEnv,Val2),
+                                                         lessThanorEqual(Val1,Val2,Val).
+
+
+eval_bool(t_booleanExprCond(E1,=>,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+                                                         eval_expr(E2,Env1,NewEnv,Val2),
+                                                         greaterThanorEqual(Val1,Val2,Val).
+
+eval_bool(t_booleanExprCond(E1,>=,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+                                                         eval_expr(E2,Env1,NewEnv,Val2),
+                                                         greaterThanorEqual(Val1,Val2,Val).
 %----------------------------------------------------------------------------------------------------------------------
 
 %Evaluate expression when t_add tree node is encountered
