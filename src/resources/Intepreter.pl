@@ -113,7 +113,7 @@ eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
 eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
-eval_commandI(t_display(X),EnvIn,EnvIn) :- lookup(X, EnvIn, Val),write(X), write(=), write(Val),nl.
+eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
 eval_commandI(t_ifEval(X,Y),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
@@ -145,7 +145,6 @@ eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y < Z,update(X,Y,EnvIn
 eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y > Z,update(X,Y,EnvIn, EnvOut1),
                                                           eval_advfordec(X,Z,T, EnvOut1, EnvOut).
 
-%ternaryEval(t_ternary(W,X,Y,Z)) --> identifier(W) ,[:,=], booleanComb(X),[?],expr(Y),[:],expr(Z).
 eval_commandI(t_ternary(W,X,Y,_),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
     											 eval_expr(Y,EnvOut1,EnvOut2,Val),
     											 update(W,Val,EnvOut2,EnvOut).
