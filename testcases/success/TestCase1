@@ -1,24 +1,24 @@
 begin
-	var x = 5;
-	var xyz = 10;
+	var x := 20;
+	var xyz := 10;
 	var abcdef;
-	var y = true;
-	display(x+5);
-	if(x+y==y+xyz) 
-		then x++; 
-	else y++; 
+	var y := 4;
+	if(x+y==y+xyz)
+		then x:=x+1;
+	else y:=y+1;
 	endif;
-	for(i:=1;i<10;i++)
-		do if(x+y==y+z) 
-			then x++; 
-		else y++; 
+	for(i:=1;i<10;i:=i+1)
+		do
+		 if(x+y==y+xyz)
+			then x:=x+1;
+		else y:=y+1;
 		endif;
 	endfor;
-	while(x==y)
-		do if(x+y==y+z) 
-			then x++; 
-		else y++; 
+	while(x!=y)
+		do if(x+y==y+xyz)
+			then x:=x+1;
+		else y:=y+1;
 		endif;
 	endwhile;
-	display((x+y)*(x-y)/(x+x+x+x*x*x*x-x-x-x-x));
+	display(y);
 end.
