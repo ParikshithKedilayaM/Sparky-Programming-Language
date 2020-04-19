@@ -171,7 +171,7 @@ eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false
     											 update(W,Val,EnvOut2,EnvOut).
 
 
-eval_commandI(t_stack_push(X,Y),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), append(Y,Val,Val1), 
+eval_commandI(t_stack_push(X,Y),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), push(Y,Val,Val1), 
     											update(X,Val1,EnvIn,EnvOut).
 
 
@@ -182,8 +182,12 @@ eval_commandI(t_stack_pop(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop(Val,Val1),
 eval_commandI(t_stack_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
 
 
+push(X,[],[X]).
+push(X,L,[X|L]):- L \=[].
+       
+
 pop([_],[]).
-pop([_|T],T).
+pop([H|T],T) :- length([H|T], L) , L \= 1.
 
 
 eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),
@@ -331,9 +335,6 @@ update(Id,Val,[(Id,_)|T],[(Id,Val)|T]).
 update(Id,Val,[H|T],[H|R]):-H \=(Id,_),update(Id,Val,T,R).
 
 
-append(X,[],[X]).
-append(X,L,[X|L]):- L \=[].
-       
        
        
        
