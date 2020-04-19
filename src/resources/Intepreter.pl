@@ -50,10 +50,11 @@ ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(
 ifEval(t_ifEval(X,Y)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [endif].
 
 ternaryEval(t_ternary(W,X,Y,Z)) --> identifier(W) ,[:,=], booleanComb(X),[?],expr(Y),[:],expr(Z).
-forEval(t_forEval(X,Y,Z,T)) --> [for],['('],commandInitialize(X),endLine,booleanComb(Y),
+forEval(t_traditionalforEval(X,Y,Z,T)) --> [for],['('],commandInitialize(X),endLine,booleanComb(Y),
    								 endLine,commandInitialize(Z),[')'],[do],commandList(T),
     							[endfor].
-forEval(t_forEval(X,Y,Z)) --> [for],identifier(X),[in],[range],['('],digit(Y), [to],digit(Z),[')'].
+forEval(t_advancedforEval(X,Y,Z,T)) --> [for],identifier(X),[in],[range],['('],digit(Y), [to],digit(Z),[')'], [do],commandList(T),
+    							[endfor].
 whileEval(t_whileEval(X,Y)) --> [while],['('],booleanComb(X),[')'],[do],commandList(Y),[endwhile].
 
 /*
@@ -137,7 +138,12 @@ eval_commandI(t_whileEval(B,_C),Env,Env):-eval_bool(B,Env,Env,false).
 
 % Evaluation Logic for FOR Loop---------------------------------------------------------------------------
 
-eval_commandI(t_forEval(X,Y,Z,T),EnvIn,EnvOut) :- eval_commandI(X,EnvIn, EnvOut1), eval_for(Y,Z,T, EnvOut1, EnvOut).
+eval_commandI(t_traditionalforEval(X,Y,Z,T),EnvIn,EnvOut) :- eval_commandI(X,EnvIn, EnvOut1), eval_for(Y,Z,T, EnvOut1, EnvOut).
+eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y < Z,update(X,Y,EnvIn, EnvOut1),  eval_advforinc(X,Z,T, EnvOut1, EnvOut).
+
+eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y > Z,update(X,Y,EnvIn, EnvOut1),  eval_advfordec(X,Z,T, EnvOut1, EnvOut).
+
+
 
 eval_for(Y,Z,T,EnvIn,EnvOut):-				 eval_bool(Y,EnvIn,EnvOut2,true),     
     										 eval_commandI(Z,EnvOut2,EnvOut3),   
@@ -147,8 +153,30 @@ eval_for(Y,Z,T,EnvIn,EnvOut):-				 eval_bool(Y,EnvIn,EnvOut2,true),
 
 
 eval_for(Y,_,_,EnvIn,EnvOut):-				 eval_bool(Y,EnvIn,EnvOut,false). 
-    								
 
+% for (i in range(0,10);
+
+% Evaluation for Advanced FOR loop -----------------------------------------------------------------------------------
+% forEval(t_forEval(X,Y,Z,C)) --> [for],identifier(X),[in],[range],['('],digit(Y), [to],digit(Z),[')'].
+
+
+eval_advforinc(X,Z,T,EnvIn,EnvOut):-             eval_bool(t_booleanExprCond(X,<,Z),EnvIn,EnvOut2,true), 
+    										  eval_commandList(T,EnvOut2,EnvOut3),
+    										  lookup(X,EnvOut3,Val), Val1 is Val + 1,
+    										  update(X,Val1,EnvOut3,EnvOut4),
+    										  eval_advforinc(X,Z,T,EnvOut4,EnvOut).
+    											
+eval_advforinc(X,Z,_,EnvIn,EnvOut):-             eval_bool(t_booleanExprCond(X,<,Z),EnvIn,EnvOut,false).
+
+
+eval_advfordec(X,Z,T,EnvIn,EnvOut):-             eval_bool(t_booleanExprCond(X,>,Z),EnvIn,EnvOut2,true), 
+    										  eval_commandList(T,EnvOut2,EnvOut3),
+    										  lookup(X,EnvOut3,Val), Val1 is Val - 1,
+    										  update(X,Val1,EnvOut3,EnvOut4),
+    										  eval_advfordec(X,Z,T,EnvOut4,EnvOut).
+
+
+eval_advfordec(X,Z,_,EnvIn,EnvOut):-             eval_bool(t_booleanExprCond(X,>,Z),EnvIn,EnvOut,false).
 
 
 
