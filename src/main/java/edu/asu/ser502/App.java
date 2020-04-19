@@ -23,7 +23,7 @@ public class App {
 		consultFile("Intepreter.pl");
 		Term parseTree = createParseTree(fileName);
 		System.out.println("Parse Tree -> " + parseTree);
-//		evaluateProgram(parseTree);
+		evaluateProgram(parseTree);
 		return parseTree == null ? false : true;
 	}
 
@@ -75,7 +75,7 @@ public class App {
 	 * @param parseTree - parse tree generated in createParseTree()
 	 */
 	private void evaluateProgram(Term parseTree) {
-		Query evaluationQuery = new Query("program(" + parseTree + ",[],S)");
+		Query evaluationQuery = new Query("eval_program(" + parseTree + ",S)");
 		Map<String, Term>[] result = evaluationQuery.allSolutions();
 		for (int i = 0; i < result.length; i++) {
 			System.out.println("Result = " + result[i].get("S"));

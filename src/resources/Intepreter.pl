@@ -145,7 +145,13 @@ eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y < Z,update(X,Y,EnvIn
 eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y > Z,update(X,Y,EnvIn, EnvOut1),
                                                           eval_advfordec(X,Z,T, EnvOut1, EnvOut).
 
-
+%ternaryEval(t_ternary(W,X,Y,Z)) --> identifier(W) ,[:,=], booleanComb(X),[?],expr(Y),[:],expr(Z).
+eval_commandI(t_ternary(W,X,Y,_),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
+    											 eval_expr(Y,EnvOut1,EnvOut2,Val),
+    											 update(W,Val,EnvOut2,EnvOut).
+eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false),
+    											 eval_expr(Z,EnvOut1,EnvOut2,Val),
+    											 update(W,Val,EnvOut2,EnvOut).
 
 eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),
     						   eval_commandI(Z,EnvOut2,EnvOut3),
@@ -155,8 +161,6 @@ eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),
 
 
 eval_for(Y,_,_,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut,false).
-
-% for (i in range(0,10);
 
 % Evaluation for Advanced FOR loop -----------------------------------------------------------------------------------
 % forEval(t_forEval(X,Y,Z,C)) --> [for],identifier(X),[in],[range],['('],digit(Y), [to],digit(Z),[')'].
