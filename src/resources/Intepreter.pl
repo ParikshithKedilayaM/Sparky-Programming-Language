@@ -52,11 +52,18 @@ commandInitialize(t_commandInitialize(X,+,+)) --> identifier(X),[+,+].
 commandInitialize(t_commandInitialize(X,-,-)) --> identifier(X),[-,-].
 
 
-stack_push(t_stack_push(X,Y)) --> identifier(X),[.],[push],['('],digit(Y),[')'].
+stack_push(t_stack_push(X,Y)) --> identifier(X),[.],[push],['('],expr(Y),[')'].
 
 stack_pop(t_stack_pop(X)) --> identifier(X),[.],[pop],['('],[')'].
 
+stack_pop(t_stack_pop_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[pop],['('],[')'].
+
 stack_isEmpty(t_stack_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
+
+stack_isEmpty(t_stack_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
+
+
+
 
 ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [else],
     						commandList(Z), [endif].
@@ -171,23 +178,36 @@ eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false
     											 update(W,Val,EnvOut2,EnvOut).
 
 
-eval_commandI(t_stack_push(X,Y),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), push(Y,Val,Val1), 
-    											update(X,Val1,EnvIn,EnvOut).
+eval_commandI(t_stack_push(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
+    											lookup(X,EnvOut1,StackOut), push(Val,StackOut,Val1), 
+    											update(X,Val1,EnvOut1,EnvOut).
 
 
-eval_commandI(t_stack_pop(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop(Val,Val1), 
+eval_commandI(t_stack_pop(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop(Val,Val1,_), 
     											update(X,Val1,EnvIn,EnvOut).
+
+eval_commandI(t_stack_pop_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop(Val,Val1,Val2),
+    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1), 
+    													update(Y,Val2, EnvOut1,EnvOut).
 
 
 eval_commandI(t_stack_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
+
+eval_commandI(t_stack_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0, 
+    														update(Y,true,EnvIn,EnvOut).
+
+eval_commandI(t_stack_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
+    														update(Y,false,EnvIn,EnvOut).
+
+
 
 
 push(X,[],[X]).
 push(X,L,[X|L]):- L \=[].
        
 
-pop([_],[]).
-pop([H|T],T) :- length([H|T], L) , L \= 1.
+pop([X],[],X).
+pop([H|T],T,H) :- length([H|T], L) , L \= 1.
 
 
 eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),
