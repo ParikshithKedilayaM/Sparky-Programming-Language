@@ -7,7 +7,7 @@ begin --> [begin].
 end --> [end].
 
 digit(X) --> [X], {number(X)} .
-identifier(X) --> [X],{atom(X), X \= true, X \= false}.
+identifier(t_id(X)) --> [X],{atom(X), X \= true, X \= false}.
 anystring(X) --> [X],{atom(X)}.
 
 program(t_program(X)) --> block(X),endPeriod.
@@ -23,7 +23,7 @@ declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
-identifierList(t_id(X)) --> identifier(X).
+identifierList(X) --> identifier(X).
 
 
 /*
@@ -114,9 +114,9 @@ eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
-eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :-
+eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
     eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
-eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :-
+eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
     eval_expr_str(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
 eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
 
@@ -249,16 +249,18 @@ eval_bool(t_booleanExprCond(E1,>=,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val
 %To be validated again
 
 %eval_expr(t_add(t_string(X),t_string(Y)),Env, Env, Val) :- concat(X,Y,Val).
-eval_expr_str(t_add(X,Y),EnvIn, EnvOut, Val) :- eval_expr_str(X,EnvIn,EnvOut1,Val1),
-    										eval_expr_str(Y,EnvOut1,EnvOut,Val2),
-    										concat(Val1,Val2,Val).
+eval_expr_str(t_add(X,Y),EnvIn, EnvOut, Val) :-
+    eval_expr_str(X,EnvIn,EnvOut1,Val1),eval_expr_str(Y,EnvOut1,EnvOut,Val2),
+    atom(Val1),atom(Val2),concat(Val1,Val2,Val).
 
 eval_expr_str(t_string(X),Env,Env,Val):- Val=X.
+eval_expr_str(t_id(X),EnvIn,EnvOut,Val):-eval_id(X,EnvIn,EnvOut,Val).
+
 
 %Evaluate expression when t_add tree node is encountered
-eval_expr(t_add(X,Y),EnvIn, EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1),
-    										eval_expr(Y,EnvOut1,EnvOut,Val2),
-    										Val is Val1 + Val2.
+eval_expr(t_add(X,Y),EnvIn, EnvOut, Val) :-
+    eval_expr(X,EnvIn,EnvOut1,Val1),eval_expr(Y,EnvOut1,EnvOut,Val2),
+    number(Val1),number(Val2),Val is Val1 + Val2.
 
 
 %Evaluate expression when t_sub tree node is encountered
@@ -280,7 +282,7 @@ eval_expr(t_div(X,Y),EnvIn,EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1),
 eval_expr(X,Env,Env,X) :- number(X).
 
 %Evaluate expression when t_add tree node is encountered
-eval_expr(X,EnvIn,EnvOut,Result) :- eval_id(X,EnvIn,EnvOut,Result).
+eval_expr(t_id(X),EnvIn,EnvOut,Result) :- eval_id(X,EnvIn,EnvOut,Result).
 eval_expr(t_id_expr_equality(X,Y),EnvIn,EnvOut,Result):-eval_expr(Y,EnvIn,EnvOut1,Result),
                                                         update(X,Result,EnvOut1,EnvOut).
 eval_id(X,EnvIn,EnvIn,Result):- lookup(X,EnvIn,Result).
