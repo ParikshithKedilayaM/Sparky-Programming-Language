@@ -22,6 +22,10 @@ declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Z),{atom_strin
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
+declR(t_init_stack(X)) --> [stack], identifier(X).
+
+
+
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
 identifierList(t_id(X)) --> identifier(X).
 
@@ -38,11 +42,27 @@ commandI(X) --> forEval(X).
 commandI(X) --> whileEval(X).
 commandI(X) --> ternaryEval(X).
 commandI(X) --> block(X).
+commandI(X) --> stack_push(X).
+commandI(X) --> stack_pop(X).
+commandI(X) --> stack_isEmpty(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
 commandInitialize(t_commandInitialize(X,+,+)) --> identifier(X),[+,+].
 commandInitialize(t_commandInitialize(X,-,-)) --> identifier(X),[-,-].
+
+
+stack_push(t_stack_push(X,Y)) --> identifier(X),[.],[push],['('],expr(Y),[')'].
+
+stack_pop(t_stack_pop(X)) --> identifier(X),[.],[pop],['('],[')'].
+
+stack_pop(t_stack_pop_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[pop],['('],[')'].
+
+stack_isEmpty(t_stack_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
+
+stack_isEmpty(t_stack_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
+
+
 
 
 ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [else],
@@ -57,6 +77,11 @@ forEval(t_advancedforEval(X,Y,Z,T)) --> [for],identifier(X),[in],[range],['('],d
                                         [do],commandList(T), [endfor].
 
 whileEval(t_whileEval(X,Y)) --> [while],['('],booleanComb(X),[')'],[do],commandList(Y),[endwhile].
+
+
+
+
+
 
 /*
 * Boolean Parsing
@@ -108,7 +133,7 @@ eval_declrList(t_declrList(X),EnvIn, EnvOut):- eval_declR(X,EnvIn, EnvOut).
 eval_declR(t_assign(X,Y), EnvIn, EnvOut) :- update(X,Y, EnvIn, EnvOut).
 eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- update(X,0,EnvIn,Env1), eval_declR(Y,Env1,EnvOut).
 eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
-
+eval_declR(t_init_stack(X),EnvIn,EnvOut) :- update(X,[],EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
@@ -152,6 +177,39 @@ eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false
     											 eval_expr(Z,EnvOut1,EnvOut2,Val),
     											 update(W,Val,EnvOut2,EnvOut).
 
+
+eval_commandI(t_stack_push(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
+    											lookup(X,EnvOut1,StackOut), push(Val,StackOut,Val1), 
+    											update(X,Val1,EnvOut1,EnvOut).
+
+
+eval_commandI(t_stack_pop(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop(Val,Val1,_), 
+    											update(X,Val1,EnvIn,EnvOut).
+
+eval_commandI(t_stack_pop_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop(Val,Val1,Val2),
+    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1), 
+    													update(Y,Val2, EnvOut1,EnvOut).
+
+
+eval_commandI(t_stack_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
+
+eval_commandI(t_stack_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0, 
+    														update(Y,true,EnvIn,EnvOut).
+
+eval_commandI(t_stack_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
+    														update(Y,false,EnvIn,EnvOut).
+
+
+
+
+push(X,[],[X]).
+push(X,L,[X|L]):- L \=[].
+       
+
+pop([X],[],X).
+pop([H|T],T,H) :- length([H|T], L) , L \= 1.
+
+
 eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),
     						   eval_commandI(Z,EnvOut2,EnvOut3),
     						   eval_commandList(T,EnvOut3, EnvOut4),
@@ -180,6 +238,18 @@ eval_advfordec(X,Z,T,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,>,Z),EnvIn,En
     								 eval_advfordec(X,Z,T,EnvOut4,EnvOut).
 
 eval_advfordec(X,Z,_,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,>,Z),EnvIn,EnvOut,false).
+
+
+
+%Evaluate stack predicates
+
+
+
+
+
+
+
+
 
 % Boolean Evaluation Logic---------------------------------------------------------------------------------------------
 not(true,false).
@@ -283,3 +353,10 @@ lookup(Id,[_|T],Val):- lookup(Id,T,Val).
 update(Id,Val,[],[(Id,Val)]).
 update(Id,Val,[(Id,_)|T],[(Id,Val)|T]).
 update(Id,Val,[H|T],[H|R]):-H \=(Id,_),update(Id,Val,T,R).
+
+
+       
+       
+       
+       
+       
