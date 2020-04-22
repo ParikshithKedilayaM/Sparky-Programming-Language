@@ -22,8 +22,7 @@ declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Z),{atom_strin
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
-declR(t_init_stack(X)) --> [stack], identifier(X).
-
+declR(t_init_list(X)) --> [list], identifier(X).
 
 
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
@@ -42,9 +41,9 @@ commandI(X) --> forEval(X).
 commandI(X) --> whileEval(X).
 commandI(X) --> ternaryEval(X).
 commandI(X) --> block(X).
-commandI(X) --> stack_push(X).
-commandI(X) --> stack_pop(X).
-commandI(X) --> stack_isEmpty(X).
+commandI(X) --> list_push(X).
+commandI(X) --> list_pop(X).
+commandI(X) --> list_isEmpty(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
@@ -52,16 +51,21 @@ commandInitialize(t_commandInitialize(X,+,+)) --> identifier(X),[+,+].
 commandInitialize(t_commandInitialize(X,-,-)) --> identifier(X),[-,-].
 
 
-stack_push(t_stack_push(X,Y)) --> identifier(X),[.],[push],['('],expr(Y),[')'].
+list_push(t_list_push_first(X,Y)) --> identifier(X),[.],[pushFirst],['('],expr(Y),[')'].
+list_push(t_list_push_last(X,Y)) --> identifier(X),[.],[pushLast],['('],expr(Y),[')'].
 
-stack_pop(t_stack_pop(X)) --> identifier(X),[.],[pop],['('],[')'].
 
-stack_pop(t_stack_pop_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[pop],['('],[')'].
 
-stack_isEmpty(t_stack_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
+list_pop(t_list_pop_first(X)) --> identifier(X),[.],[popFirst],['('],[')'].
+list_pop(t_list_pop_first_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popFirst],['('],[')'].
 
-stack_isEmpty(t_stack_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
 
+list_pop(t_list_pop_last(X)) --> identifier(X),[.],[popLast],['('],[')'].
+list_pop(t_list_pop_last_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popLast],['('],[')'].
+
+
+list_isEmpty(t_list_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
+list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
 
 
 
@@ -133,7 +137,7 @@ eval_declrList(t_declrList(X),EnvIn, EnvOut):- eval_declR(X,EnvIn, EnvOut).
 eval_declR(t_assign(X,Y), EnvIn, EnvOut) :- update(X,Y, EnvIn, EnvOut).
 eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- update(X,0,EnvIn,Env1), eval_declR(Y,Env1,EnvOut).
 eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
-eval_declR(t_init_stack(X),EnvIn,EnvOut) :- update(X,[],EnvIn,EnvOut).
+eval_declR(t_init_list(X),EnvIn,EnvOut) :- update(X,([]),EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
@@ -178,36 +182,54 @@ eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false
     											 update(W,Val,EnvOut2,EnvOut).
 
 
-eval_commandI(t_stack_push(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
-    											lookup(X,EnvOut1,StackOut), push(Val,StackOut,Val1), 
+eval_commandI(t_list_push_first(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
+    											lookup(X,EnvOut1,ListOut), push_first(Val,ListOut,Val1), 
     											update(X,Val1,EnvOut1,EnvOut).
 
+eval_commandI(t_list_push_last(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
+    											lookup(X,EnvOut1,ListOut), push_last(Val,ListOut,Val1), 
+    											update(X,Val1,EnvOut1,EnvOut).
 
-eval_commandI(t_stack_pop(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop(Val,Val1,_), 
+eval_commandI(t_list_pop_first(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_first(Val,Val1,_), 
     											update(X,Val1,EnvIn,EnvOut).
 
-eval_commandI(t_stack_pop_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop(Val,Val1,Val2),
+eval_commandI(t_list_pop_first_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_first(Val,Val1,Val2),
     												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1), 
     													update(Y,Val2, EnvOut1,EnvOut).
 
 
-eval_commandI(t_stack_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
+eval_commandI(t_list_pop_last(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_last(Val,Val1,_), 
+    											update(X,Val1,EnvIn,EnvOut).
 
-eval_commandI(t_stack_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0, 
+eval_commandI(t_list_pop_last_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_last(Val,Val1,Val2),
+    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1), 
+    													update(Y,Val2, EnvOut1,EnvOut).
+
+
+
+
+
+eval_commandI(t_list_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
+
+eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0, 
     														update(Y,true,EnvIn,EnvOut).
 
-eval_commandI(t_stack_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
+eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
     														update(Y,false,EnvIn,EnvOut).
 
 
-
-
-push(X,[],[X]).
-push(X,L,[X|L]):- L \=[].
+push_first(X,[],[X]).
+push_first(X,L,[X|L]):- L \=[].
        
+push_last(X,[],[X]).
+push_last(X,L,R):- L \=[], append(L,[X],R).
 
-pop([X],[],X).
-pop([H|T],T,H) :- length([H|T], L) , L \= 1.
+pop_first([X],[],X).
+pop_first([H|T],T,H) :- length([H|T], L) , L \= 1.
+
+pop_last([X],[],X).
+pop_last(L,T,R) :- reverse(L, L1), pop_first(L1,L2,R), reverse(L2,T).
+
 
 
 eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),
@@ -241,7 +263,7 @@ eval_advfordec(X,Z,_,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,>,Z),EnvIn,En
 
 
 
-%Evaluate stack predicates
+%Evaluate list predicates
 
 
 
@@ -354,9 +376,4 @@ update(Id,Val,[],[(Id,Val)]).
 update(Id,Val,[(Id,_)|T],[(Id,Val)|T]).
 update(Id,Val,[H|T],[H|R]):-H \=(Id,_),update(Id,Val,T,R).
 
-
-       
-       
-       
-       
        
