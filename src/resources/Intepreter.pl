@@ -25,7 +25,6 @@ declR(X) --> var, identifierList(X).
 declR(t_init_list(X)) --> [list], identifier(X).
 
 
-
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
 identifierList(t_id(X)) --> identifier(X).
 
