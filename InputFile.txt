@@ -1,25 +1,9 @@
 begin
 	var x;
-	var y;
-	var u;
-	u:=2*x+y;    
-	begin
-		var v; 
-		var z;
-		v:=100;
-		z:=u+v ;
-		begin
-			var x;    
-			z:=z+10;   
-			while (! u == 0) do 
-				v:=y;   
-				v := 1;
-				while (! v == 0) do
-				z := z + 1 ; 
-				v := v - 1  ;
-				endwhile;
-		u := u - 1 ;
-	endwhile ;
-		end;
-	end;
+	var y := 20;
+	var z;
+	x:=20;
+	z:=x+y;
+	s:="EE";
+	str:="ashutosh"+s+"Dey"+s;
 end.
