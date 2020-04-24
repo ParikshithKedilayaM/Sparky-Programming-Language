@@ -47,9 +47,27 @@ commandI(X) --> list_pop(X).
 commandI(X) --> list_isEmpty(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
-commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
-commandInitialize(t_commandInc(X)) --> identifier(X),[+,+].
-commandInitialize(t_commandDec(X)) --> identifier(X),[-,-].
+%commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
+commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[+,+],{Y=t_add(X,1)}.
+commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[-,-],{Y=t_sub(X,1)}.
+
+
+list_push(t_list_push_first(X,Y)) --> identifier(X),[.],[pushFirst],['('],expr(Y),[')'].
+list_push(t_list_push_last(X,Y)) --> identifier(X),[.],[pushLast],['('],expr(Y),[')'].
+
+
+
+list_pop(t_list_pop_first(X)) --> identifier(X),[.],[popFirst],['('],[')'].
+list_pop(t_list_pop_first_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popFirst],['('],[')'].
+
+
+list_pop(t_list_pop_last(X)) --> identifier(X),[.],[popLast],['('],[')'].
+list_pop(t_list_pop_last_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popLast],['('],[')'].
+
+
+list_isEmpty(t_list_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
+list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
+
 
 
 list_push(t_list_push_first(X,Y)) --> identifier(X),[.],[pushFirst],['('],expr(Y),[')'].
@@ -149,9 +167,6 @@ eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
 eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
     eval_expr_str(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
 eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
-
-eval_commandI(t_commandInc(X),EnvIn,EnvOut):- lookup(X,EnvIn,Val), Val=Val+1, update(X,Val,EnvIn, EnvOut).
-eval_commandI(t_commandDec(X),EnvIn,EnvOut):- lookup(X,EnvIn,Val), Val=Val-1, update(X,Val,EnvIn, EnvOut).
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
 eval_commandI(t_ifEval(X,Y),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
@@ -390,4 +405,3 @@ update(Id,Val,[],[(Id,Val)]).
 update(Id,Val,[(Id,_)|T],[(Id,Val)|T]).
 update(Id,Val,[H|T],[H|R]):-H \=(Id,_),update(Id,Val,T,R).
 
-       
