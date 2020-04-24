@@ -1,0 +1,18 @@
+begin
+	var x,b,c;
+	var name := "chandan";
+	list x;
+	c := x.isEmpty();
+	display(c);
+	x.pushFirst(5);
+	x.pushFirst(6);
+	b := x.popFirst();
+	x.pushFirst(8);
+	x.pushLast(9);
+	c := x.popLast();
+	display(x);
+	display(b);
+	display(c);
+	
+	display(name);
+end.

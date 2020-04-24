@@ -70,6 +70,24 @@ list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[
 
 
 
+list_push(t_list_push_first(X,Y)) --> identifier(X),[.],[pushFirst],['('],expr(Y),[')'].
+list_push(t_list_push_last(X,Y)) --> identifier(X),[.],[pushLast],['('],expr(Y),[')'].
+
+
+
+list_pop(t_list_pop_first(X)) --> identifier(X),[.],[popFirst],['('],[')'].
+list_pop(t_list_pop_first_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popFirst],['('],[')'].
+
+
+list_pop(t_list_pop_last(X)) --> identifier(X),[.],[popLast],['('],[')'].
+list_pop(t_list_pop_last_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popLast],['('],[')'].
+
+
+list_isEmpty(t_list_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
+list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
+
+
+
 ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [else],
     						commandList(Z), [endif].
 ifEval(t_ifEval(X,Y)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [endif].
@@ -386,3 +404,4 @@ lookup(Id,[_|T],Val):- lookup(Id,T,Val).
 update(Id,Val,[],[(Id,Val)]).
 update(Id,Val,[(Id,_)|T],[(Id,Val)|T]).
 update(Id,Val,[H|T],[H|R]):-H \=(Id,_),update(Id,Val,T,R).
+
