@@ -8,7 +8,7 @@ end --> [end].
 
 digit(X) --> [X], {number(X)} .
 identifier(t_id(X)) --> [X],{atom(X), X \= true, X \= false}.
-anystring(X) --> [X],{atom(X)}.
+anystring(t_string(X)) --> [X],{atom(X)}.
 
 program(t_program(X)) --> block(X),endPeriod.
 block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
@@ -19,7 +19,7 @@ block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 declrList(t_declrList(X,Y)) --> declR(X), endLine,declrList(Y).
 declrList(t_declrList(X)) --> declR(X), endLine.
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
-declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
+declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Y),['"'].
 declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
 declR(X) --> var, identifierList(X).
@@ -41,47 +41,57 @@ commandI(X) --> ternaryEval(X).
 commandI(X) --> block(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
-commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
+%commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
 commandInitialize(t_commandInc(X)) --> identifier(X),[+,+].
 commandInitialize(t_commandDec(X)) --> identifier(X),[-,-].
 
 
-ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [else],
+ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],boolean(X),[')'],[then],commandList(Y), [else],
     						commandList(Z), [endif].
-ifEval(t_ifEval(X,Y)) -->[if],['('],booleanComb(X),[')'],[then],commandList(Y), [endif].
+ifEval(t_ifEval(X,Y)) -->[if],['('],boolean(X),[')'],[then],commandList(Y), [endif].
 
-ternaryEval(t_ternary(W,X,Y,Z)) --> identifier(W) ,[:,=], booleanComb(X),[?],expr(Y),[:],expr(Z).
+ternaryEval(t_ternary(W,X,Y,Z)) --> identifier(W) ,[:,=], boolean(X),[?],expr(Y),[:],expr(Z).
 
-forEval(t_traditionalforEval(X,Y,Z,T)) --> [for],['('],commandInitialize(X),endLine,booleanComb(Y),
+forEval(t_traditionalforEval(X,Y,Z,T)) --> [for],['('],commandInitialize(X),endLine,boolean(Y),
    								 endLine,commandInitialize(Z),[')'],[do],commandList(T),[endfor].
 forEval(t_advancedforEval(X,Y,Z,T)) --> [for],identifier(X),[in],[range],['('],digit(Y), [to],digit(Z),[')'],
                                         [do],commandList(T), [endfor].
 
-whileEval(t_whileEval(X,Y)) --> [while],['('],booleanComb(X),[')'],[do],commandList(Y),[endwhile].
+whileEval(t_whileEval(X,Y)) --> [while],['('],boolean(X),[')'],[do],commandList(Y),[endwhile].
+
+
+:-table expr/3, term/3 ,boolean/3, eval_bool/4, boolean1/3, boolean2/3, boolean3/3, boolean4/3.
 
 /*
 * Boolean Parsing
 */
-booleanComb(X) --> booleanI(X).
-booleanComb(X) --> boolean(X).
+boolean(t_booleanExprCond(X,or,Z)) --> boolean(X),[or],boolean1(Z).
+boolean(X) -->boolean1(X).
 
-booleanI(true) --> [true].
-booleanI(false) --> [false].
+boolean1(t_booleanExprCond(X,and,Z)) --> boolean1(X), [and], boolean2(Z).
+boolean1(X) --> boolean2(X).
+%boolean2(t_booleanNegate(X)) --> [!],boolean2(X).
 
-boolean(t_booleanNegate(X)) --> [!],booleanComb(X).
-boolean(t_booleanExprEquals(X,Y)) --> expr(X),equal,equal,expr(Y).
-boolean(t_booleanExprNotEquals(X,Y)) --> expr(X),[!],equal,expr(Y).
-boolean(t_booleanExprCond(X,Y,Z)) --> expr(X),conditional(Y),expr(Z).
+boolean2(t_booleanExprNotEquals(X,Y)) --> boolean2(X),[!],equal,boolean3(Y).
+boolean2(X)-->boolean3(X).
 
+boolean3(t_booleanExprCond(X,Y,Z)) --> boolean3(X),conditional(Y),boolean4(Z).
+boolean3(X) --> boolean4(X).
+boolean3(X) -->['('], boolean(X),[')'].
+
+boolean4(true) --> [true].
+boolean4(false) --> [false].
+boolean4(X) --> expr(X).
 
 conditional(>) --> [>].
 conditional(<) --> [<].
 conditional(>=) --> [>,=].
 conditional(<=) --> [<,=].
-conditional(and) --> [and].
-conditional(or) --> [or].
+conditional(==) --> [=,=].
 
-:-table expr/3, term/3 .
+booleanI(true) -->[true].
+booleanI(false) --> [false].
+
 /*
 * Expression Parsing
 */
@@ -96,7 +106,7 @@ term(X) --> factor(X).
 factor(X) --> ['('],expr(X),[')'].
 factor(X) --> digit(X).
 factor(X) --> identifier(X).
-factor(t_boolean(X)) --> booleanI(X).
+%factor(t_boolean(X)) --> booleanI(X).
 factor(t_string(X)) -->['"'], anystring(X),['"'].
 
 display(t_display(X)) --> [display],['('],expr(X),[')'].
