@@ -68,24 +68,6 @@ list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[
 
 
 
-list_push(t_list_push_first(X,Y)) --> identifier(X),[.],[pushFirst],['('],expr(Y),[')'].
-list_push(t_list_push_last(X,Y)) --> identifier(X),[.],[pushLast],['('],expr(Y),[')'].
-
-
-
-list_pop(t_list_pop_first(X)) --> identifier(X),[.],[popFirst],['('],[')'].
-list_pop(t_list_pop_first_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popFirst],['('],[')'].
-
-
-list_pop(t_list_pop_last(X)) --> identifier(X),[.],[popLast],['('],[')'].
-list_pop(t_list_pop_last_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popLast],['('],[')'].
-
-
-list_isEmpty(t_list_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
-list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
-
-
-
 ifEval(t_ifteEval(X,Y,Z)) -->[if],['('],boolean(X),[')'],[then],commandList(Y), [else],
     						commandList(Z), [endif].
 ifEval(t_ifEval(X,Y)) -->[if],['('],boolean(X),[')'],[then],commandList(Y), [endif].
@@ -127,6 +109,7 @@ conditional(>) --> [>].
 conditional(<) --> [<].
 conditional(>=) --> [>,=].
 conditional(<=) --> [<,=].
+conditional(==) --> [=,=].
 
 booleanI(true) --> [true].
 booleanI(false) --> [false].
@@ -158,6 +141,7 @@ eval_declrList(t_declrList(X,Y),EnvIn, EnvOut) :- eval_declR(X,EnvIn, Env1), eva
 eval_declrList(t_declrList(X),EnvIn, EnvOut):- eval_declR(X,EnvIn, EnvOut).
 
 eval_declR(t_assign(t_id(X),Y), EnvIn, EnvOut) :- update(X,Y, EnvIn, EnvOut).
+eval_declR(t_assign(t_id(X),Y), EnvIn, EnvOut) :- eval_string(Y,EnvIn,EnvIn)update(X,Y, EnvIn, EnvOut).
 eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- eval_declR(X, EnvIn, Env1), eval_declR(Y,Env1,EnvOut).
 eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
 eval_declR(t_init_list(X),EnvIn,EnvOut) :- update(X,([]),EnvIn,EnvOut).
@@ -169,6 +153,8 @@ eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
 eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
     eval_expr_str(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
 eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
+eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_string(X, EnvIn,EnvOut, Val),write(Val),nl.
+
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
 eval_commandI(t_ifEval(X,Y),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
@@ -210,26 +196,26 @@ eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false
 
 
 eval_commandI(t_list_push_first(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
-    											lookup(X,EnvOut1,ListOut), push_first(Val,ListOut,Val1), 
+    											lookup(X,EnvOut1,ListOut), push_first(Val,ListOut,Val1),
     											update(X,Val1,EnvOut1,EnvOut).
 
 eval_commandI(t_list_push_last(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
-    											lookup(X,EnvOut1,ListOut), push_last(Val,ListOut,Val1), 
+    											lookup(X,EnvOut1,ListOut), push_last(Val,ListOut,Val1),
     											update(X,Val1,EnvOut1,EnvOut).
 
-eval_commandI(t_list_pop_first(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_first(Val,Val1,_), 
+eval_commandI(t_list_pop_first(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_first(Val,Val1,_),
     											update(X,Val1,EnvIn,EnvOut).
 
 eval_commandI(t_list_pop_first_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_first(Val,Val1,Val2),
-    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1), 
+    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1),
     													update(Y,Val2, EnvOut1,EnvOut).
 
 
-eval_commandI(t_list_pop_last(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_last(Val,Val1,_), 
+eval_commandI(t_list_pop_last(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_last(Val,Val1,_),
     											update(X,Val1,EnvIn,EnvOut).
 
 eval_commandI(t_list_pop_last_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_last(Val,Val1,Val2),
-    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1), 
+    												   lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1),
     													update(Y,Val2, EnvOut1,EnvOut).
 
 
@@ -238,7 +224,7 @@ eval_commandI(t_list_pop_last_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), 
 
 eval_commandI(t_list_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
 
-eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0, 
+eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0,
     														update(Y,true,EnvIn,EnvOut).
 
 eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
@@ -247,7 +233,7 @@ eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), l
 
 push_first(X,[],[X]).
 push_first(X,L,[X|L]):- L \=[].
-       
+
 push_last(X,[],[X]).
 push_last(X,L,R):- L \=[], append(L,[X],R).
 
@@ -343,15 +329,10 @@ eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_bool(B,EnvIn,EnvOut,Val1),
 eval_bool(t_booleanExprCond(E1,==,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
                                                       eval_expr(E2,Env1,NewEnv,Val2),
                                                       equal(Val1,Val2,Val).
-eval_bool(t_booleanExprCond(E1,'!',=,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
+eval_bool(t_booleanExprNotEquals(E1,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
                                                       eval_expr(E2,Env1,NewEnv,Val2),
                                                       equal(Val1,Val2,Val3), not(Val3,Val).
 
-eval_bool(t_booleanExprCond(E1,and,E2),Env,NewEnv,Val):-eval_bool(E1,Env,Env1,Val1),
-                                                         eval_bool(E2,Env1,NewEnv,Val2),
-                                                         equal(Val1,Val2,Val).
-
-*/
 eval_bool(t_booleanExprCond(E1,<,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
                                                          eval_expr(E2,Env1,NewEnv,Val2),
                                                          lessThan(Val1,Val2,Val).
@@ -383,10 +364,10 @@ eval_expr_str(t_add(X,Y),EnvIn, EnvOut, Val) :-
     eval_expr_str(X,EnvIn,EnvOut1,Val1),eval_expr_str(Y,EnvOut1,EnvOut,Val2),
     atom(Val1),atom(Val2),concat(Val1,Val2,Val).
 
-eval_expr_str(t_string(X),Env,Env,Val):- Val=X.
+eval_expr_str(X,Env,Env,Val):- eval_string(X,Env,Env,Val).
 eval_expr_str(X,EnvIn,EnvOut,Val):-eval_id(X,EnvIn,EnvOut,Val).
 
-
+eval_string(t_string(X),Env, Env, Val):- Val = X.
 %Evaluate expression when t_add tree node is encountered
 eval_expr(t_add(X,Y),EnvIn, EnvOut, Val) :-
     eval_expr(X,EnvIn,EnvOut1,Val1),eval_expr(Y,EnvOut1,EnvOut,Val2),
@@ -396,17 +377,17 @@ eval_expr(t_add(X,Y),EnvIn, EnvOut, Val) :-
 %Evaluate expression when t_sub tree node is encountered
 eval_expr(t_sub(X,Y),EnvIn, EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1),
     										eval_expr(Y,EnvOut1,EnvOut,Val2),
-    										Val is Val1 - Val2.
+    										 number(Val1),number(Val2),Val is Val1 - Val2.
 
 %Evaluate expression when t_mul tree node is encountered
 eval_expr(t_mul(X,Y),EnvIn,EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1),
     										eval_expr(Y,EnvOut1,EnvOut,Val2),
-    										Val is Val1 * Val2.
+    										 number(Val1),number(Val2),Val is Val1 * Val2.
 
 %Evaluate expression when t_div tree node is encountered
 eval_expr(t_div(X,Y),EnvIn,EnvOut, Val) :- eval_expr(X,EnvIn,EnvOut1,Val1),
     										eval_expr(Y,EnvOut1,EnvOut,Val2),
-    										Val is Val1 / Val2.
+    										 number(Val1),number(Val2),Val is Val1 / Val2.
 
 %Evaluate expression when t_add tree node is encountered
 eval_expr(X,Env,Env,X) :- number(X).
