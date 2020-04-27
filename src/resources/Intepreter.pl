@@ -10,7 +10,7 @@ digit(X) --> [X], {number(X)} .
 identifier(t_id(X)) --> [X],{atom(X), X \= true, X \= false}.
 anystring(t_string(X)) --> [X],{atom(X)}.
 
-program(t_program(X)) --> block(X),endPeriod.
+program(t_program(X)) --> block(X).
 block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 
 /*
