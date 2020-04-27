@@ -150,7 +150,7 @@ eval_declR(t_assign(t_id(X),Y), EnvIn, EnvOut) :- eval_string(Y,EnvIn,EnvIn,Val)
 
 eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- eval_declR(X, EnvIn, Env1), eval_declR(Y,Env1,EnvOut).
 eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
-eval_declR(t_init_list(X),EnvIn,EnvOut) :- update(X,([]),EnvIn,EnvOut).
+eval_declR(t_init_list(t_id(X)),EnvIn,EnvOut) :- update(X,([]),EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
@@ -185,40 +185,40 @@ eval_commandI(t_whileEval(B,_C),Env,Env):-eval_bool(B,Env,Env,false).
 
 eval_commandI(t_traditionalforEval(X,Y,Z,T),EnvIn,EnvOut) :- eval_commandI(X,EnvIn, EnvOut1),
                                                              eval_for(Y,Z,T, EnvOut1, EnvOut).
-eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y < Z,update(X,Y,EnvIn, EnvOut1),
+eval_commandI(t_advancedforEval(t_id(X),Y,Z,T),EnvIn,EnvOut) :- Y < Z,update(X,Y,EnvIn, EnvOut1),
                                                           eval_advforinc(X,Z,T, EnvOut1, EnvOut).
 
-eval_commandI(t_advancedforEval(X,Y,Z,T),EnvIn,EnvOut) :- Y > Z,update(X,Y,EnvIn, EnvOut1),
+eval_commandI(t_advancedforEval(t_id(X),Y,Z,T),EnvIn,EnvOut) :- Y > Z,update(X,Y,EnvIn, EnvOut1),
                                                           eval_advfordec(X,Z,T, EnvOut1, EnvOut).
 
-eval_commandI(t_ternary(W,X,Y,_),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
+eval_commandI(t_ternary(t_id(W),X,Y,_),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
     eval_expr(Y,EnvOut1,EnvOut2,Val),
     update(W,Val,EnvOut2,EnvOut).
-eval_commandI(t_ternary(W,X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false),
+eval_commandI(t_ternary(t_id(W),X,_,Z),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,false),
     eval_expr(Z,EnvOut1,EnvOut2,Val),
     update(W,Val,EnvOut2,EnvOut).
 
 
-eval_commandI(t_list_push_first(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
+eval_commandI(t_list_push_first(t_id(X),Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
     lookup(X,EnvOut1,ListOut), push_first(Val,ListOut,Val1),
     update(X,Val1,EnvOut1,EnvOut).
 
-eval_commandI(t_list_push_last(X,Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
+eval_commandI(t_list_push_last(t_id(X),Y),EnvIn,EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val),
     lookup(X,EnvOut1,ListOut), push_last(Val,ListOut,Val1),
     update(X,Val1,EnvOut1,EnvOut).
 
-eval_commandI(t_list_pop_first(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_first(Val,Val1,_),
+eval_commandI(t_list_pop_first(t_id(X)),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_first(Val,Val1,_),
     update(X,Val1,EnvIn,EnvOut).
 
-eval_commandI(t_list_pop_first_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_first(Val,Val1,Val2),
+eval_commandI(t_list_pop_first_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_first(Val,Val1,Val2),
       lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1),
     update(Y,Val2, EnvOut1,EnvOut).
 
 
-eval_commandI(t_list_pop_last(X),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_last(Val,Val1,_),
+eval_commandI(t_list_pop_last(t_id(X)),EnvIn,EnvOut) :-lookup(X,EnvIn,Val), pop_last(Val,Val1,_),
     update(X,Val1,EnvIn,EnvOut).
 
-eval_commandI(t_list_pop_last_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_last(Val,Val1,Val2),
+eval_commandI(t_list_pop_last_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), pop_last(Val,Val1,Val2),
       lookup(Y,EnvIn,_), update(X,Val1,EnvIn,EnvOut1),
     update(Y,Val2, EnvOut1,EnvOut).
 
@@ -226,12 +226,12 @@ eval_commandI(t_list_pop_last_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), 
 
 
 
-eval_commandI(t_list_isempty(X),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
+eval_commandI(t_list_isempty(t_id(X)),EnvIn,EnvIn) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0.
 
-eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0,
+eval_commandI(t_list_isempty_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 is 0,
     update(Y,true,EnvIn,EnvOut).
 
-eval_commandI(t_list_isempty_assign(X,Y),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
+eval_commandI(t_list_isempty_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
     update(Y,false,EnvIn,EnvOut).
 
 
@@ -260,21 +260,21 @@ eval_for(Y,_,_,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut,false).
 
 % Evaluation for Advanced FOR loop -----------------------------------------------------------------------------------
 
-eval_advforinc(X,Z,T,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,<,Z),EnvIn,EnvOut2,true),
+eval_advforinc(X,Z,T,EnvIn,EnvOut):- lookup(X,EnvIn,K),eval_bool(t_booleanExprCond(K,<,Z),EnvIn,EnvOut2,true),
     eval_commandList(T,EnvOut2,EnvOut3),
     lookup(X,EnvOut3,Val), Val1 is Val + 1,
     update(X,Val1,EnvOut3,EnvOut4),
     eval_advforinc(X,Z,T,EnvOut4,EnvOut).
 
-eval_advforinc(X,Z,_,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,<,Z),EnvIn,EnvOut,false).
+eval_advforinc(X,Z,_,EnvIn,EnvOut):- lookup(X,EnvIn,K),eval_bool(t_booleanExprCond(K,<,Z),EnvIn,EnvOut,false).
 
-eval_advfordec(X,Z,T,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,>,Z),EnvIn,EnvOut2,true),
+eval_advfordec(X,Z,T,EnvIn,EnvOut):- lookup(X,EnvIn,K),eval_bool(t_booleanExprCond(K,>,Z),EnvIn,EnvOut2,true),
     eval_commandList(T,EnvOut2,EnvOut3),
     lookup(X,EnvOut3,Val), Val1 is Val - 1,
     update(X,Val1,EnvOut3,EnvOut4),
     eval_advfordec(X,Z,T,EnvOut4,EnvOut).
 
-eval_advfordec(X,Z,_,EnvIn,EnvOut):- eval_bool(t_booleanExprCond(X,>,Z),EnvIn,EnvOut,false).
+eval_advfordec(X,Z,_,EnvIn,EnvOut):- lookup(X,EnvIn,K),eval_bool(t_booleanExprCond(K,>,Z),EnvIn,EnvOut,false).
 
 
 
