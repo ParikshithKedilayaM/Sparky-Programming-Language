@@ -16,9 +16,12 @@ import org.jpl7.Term;
 public class App {
 	public static void main(String[] args) {
 		App app = new App();
-		String path = args.length > 0 ? args[0] : "InputFile.txt";
+		String path = args.length > 0 ? args[0] : "InputFile.spk";
 		try {
-			app.run(path);
+			if(path.endsWith(".spk")) {
+				app.run(path);
+			} else
+				throw new Exception("Invalid file type!");
 		} catch(Exception e) {
 			System.err.println(e.getMessage());
 		}
