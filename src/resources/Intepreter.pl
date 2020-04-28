@@ -93,7 +93,7 @@ boolean(X) -->boolean1(X).
 boolean1(t_booleanExprCond(X,and,Z)) --> boolean1(X), [and], boolean2(Z).
 boolean1(X) --> boolean2(X).
 
-%boolean2(t_booleanNegate(X)) --> [!],boolean2(X).
+boolean2(t_booleanNegate(X)) --> [!],boolean3(X).
 boolean2(t_booleanExprNotEquals(X,Y)) --> boolean2(X),[!],equal,boolean3(Y).
 boolean2(X)-->boolean3(X).
 
@@ -101,8 +101,7 @@ boolean3(t_booleanExprCond(X,Y,Z)) --> boolean3(X),conditional(Y),boolean4(Z).
 boolean3(X) --> boolean4(X).
 boolean3(X) -->['('], boolean(X),[')'].
 
-boolean4(true) --> [true].
-boolean4(false) --> [false].
+boolean4(X) --> booleanI(X).
 boolean4(X) --> expr(X).
 
 conditional(>) --> [>].
@@ -319,6 +318,8 @@ eval_bool(t_booleanExprCond(X,or,Y),EnvIn,EnvOut,false):- eval_bool(X,EnvIn,Env1
 
 
 eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_bool(B,EnvIn,EnvOut,Val1),
+                                                not(Val1,Val).
+eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_id(B,EnvIn,EnvOut,Val1),
                                                 not(Val1,Val).
 
 eval_bool(t_booleanExprCond(E1,==,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),

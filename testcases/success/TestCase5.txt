@@ -1,0 +1,18 @@
+begin
+	var tr :="TRUE";
+	var fl := "FALSE";
+	var x := 8;
+	var y := 5;
+	var z := 6;
+	var t := 6;
+	var w,b,c,m,a,k;
+    var name := "Ashutosh";
+    	display(name);
+	if (x != y and t == z  or z != t and !t == z and true)
+	then
+	    display(tr);
+	else
+	display(fl);
+	endif;
+
+end.

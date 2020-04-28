@@ -34,12 +34,6 @@
 			<artifactId>jpl</artifactId>
 			<version>7.4.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>RELEASE</version>
-			<scope>compile</scope>
-		</dependency>
 
 	</dependencies>
 </project>
