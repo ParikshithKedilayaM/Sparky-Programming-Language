@@ -1,0 +1,10 @@
+begin
+var a := "Team07";
+var b := "Special Characters $%&*";
+var d := true;
+var aa := 1.1;
+var bb:= 99.99;
+var add, sub, mul, div;
+add := aa + bb + aa + bb;
+display(add);
+end

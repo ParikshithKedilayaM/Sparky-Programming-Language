@@ -58,7 +58,7 @@ public class Tokens {
 	 * @param input - one line of code from the program file
 	 */
 	private void generateTokens(String input) {
-		String delimiters = ":!;<>+()=\t \n*-/,|?.";
+		String delimiters = ":!;<>+()=\t \n*-/,|?";
 		StringTokenizer tokenizer = new StringTokenizer(input, delimiters, true);
 		while (tokenizer.hasMoreTokens()) {
 			String nextToken = tokenizer.nextToken();
