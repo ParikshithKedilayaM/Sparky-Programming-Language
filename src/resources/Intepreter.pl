@@ -10,7 +10,7 @@ digit(X) --> [X], {number(X)} .
 identifier(t_id(X)) --> [X],{atom(X), X \= true, X \= false}.
 anystring(t_string(X)) --> [X],{atom(X)}.
 
-program(t_program(X)) --> block(X),endPeriod.
+program(t_program(X)) --> block(X).
 block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 
 /*
@@ -153,7 +153,7 @@ eval_declR(t_init_list(t_id(X)),EnvIn,EnvOut) :- update(X,([]),EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
-eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
+eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :- lookup(X,EnvIn,_),
     eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
 %eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
 %    eval_expr_str(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
@@ -182,8 +182,8 @@ eval_commandI(t_whileEval(B,_C),Env,Env):-eval_bool(B,Env,Env,false).
 
 % Evaluation Logic for FOR Loop---------------------------------------------------------------------------
 
-eval_commandI(t_traditionalforEval(Initial,Cnditn,Counter,Comnd),EnvIn,EnvOut) :- eval_commandI(Initial,EnvIn, EnvOut1),
-                                                             eval_for(Cnditn,Counter,Comnd, EnvOut1, EnvOut).
+eval_commandI(t_traditionalforEval(X,Y,Z,T),EnvIn,EnvOut) :- eval_commandIFor(X,EnvIn, EnvOut1),
+                                                             eval_for(Y,Z,T, EnvOut1, EnvOut).
 eval_commandI(t_advancedforEval(t_id(X),Y,Z,T),EnvIn,EnvOut) :- Y < Z,update(X,Y,EnvIn, EnvOut1),
                                                           eval_advforinc(X,Z,T, EnvOut1, EnvOut).
 
@@ -233,6 +233,9 @@ eval_commandI(t_list_isempty_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,E
 eval_commandI(t_list_isempty_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
     update(Y,false,EnvIn,EnvOut).
 
+eval_commandIFor(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-eval_expr(Y, EnvIn, Env1, Val),
+                                                                update(X,Val,Env1, EnvOut).
+
 
 push_first(X,[],[X]).
 push_first(X,L,[X|L]):- L \=[].
@@ -245,6 +248,7 @@ pop_first([H|T],T,H) :- length([H|T], L) , L \= 1.
 
 pop_last([X],[],X).
 pop_last(L,T,R) :- reverse(L, L1), pop_first(L1,L2,R), reverse(L2,T).
+
 
 
 eval_for(Y,Z,T,EnvIn,EnvOut):- eval_bool(Y,EnvIn,EnvOut2,true),

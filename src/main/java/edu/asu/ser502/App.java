@@ -9,7 +9,7 @@ import org.jpl7.Term;
 
 /**
  * Binding class for lexer, parser and compiler.
- * 
+ *
  * @author Parikshith Kedilaya Mallar
  *
  */
@@ -19,17 +19,16 @@ public class App {
 		app.run("InputFile.txt");
 	}
 
-	public boolean run(String fileName) {
+	public void run(String fileName) {
 		consultFile("Intepreter.pl");
 		Term parseTree = createParseTree(fileName);
 		System.out.println("Parse Tree -> " + parseTree);
 		evaluateProgram(parseTree);
-		return parseTree == null ? false : true;
 	}
 
 	/**
 	 * Consults Intepreter.pl file in the prolog environment
-	 * 
+	 *
 	 * @param fileName - File with DCG or Prolog code
 	 */
 	private void consultFile(String fileName) {
@@ -41,7 +40,7 @@ public class App {
 
 	/**
 	 * Method to create parse tree for the given program in the input file
-	 * 
+	 *
 	 * @param fileName - File which has program written
 	 * @return - returns the generated parse tree
 	 */
@@ -71,7 +70,7 @@ public class App {
 	/**
 	 * Method to create runtime execution environment. Takes parse tree and produces
 	 * the calculated output
-	 * 
+	 *
 	 * @param parseTree - parse tree generated in createParseTree()
 	 */
 	private void evaluateProgram(Term parseTree) {
@@ -79,6 +78,9 @@ public class App {
 		Map<String, Term>[] result = evaluationQuery.allSolutions();
 		for (int i = 0; i < result.length; i++) {
 			System.out.println("Result = " + result[i].get("S"));
+		}
+		if (result.length == 0) {
+			System.out.println("Failed");
 		}
 	}
 }
