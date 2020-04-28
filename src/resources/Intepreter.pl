@@ -319,6 +319,8 @@ eval_bool(t_booleanExprCond(X,or,Y),EnvIn,EnvOut,false):- eval_bool(X,EnvIn,Env1
 
 eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_bool(B,EnvIn,EnvOut,Val1),
                                                 not(Val1,Val).
+eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_id(B,EnvIn,EnvOut,Val1),
+                                                not(Val1,Val).
 
 eval_bool(t_booleanExprCond(E1,==,E2),Env,NewEnv,Val):-eval_expr(E1,Env,Env1,Val1),
                                                       eval_expr(E2,Env1,NewEnv,Val2),
