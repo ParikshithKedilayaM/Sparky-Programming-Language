@@ -16,7 +16,12 @@ import org.jpl7.Term;
 public class App {
 	public static void main(String[] args) {
 		App app = new App();
-		app.run("InputFile.txt");
+		String path = args.length > 0 ? args[0] : "InputFile.txt";
+		try {
+			app.run(path);
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 
 	public void run(String fileName) {
