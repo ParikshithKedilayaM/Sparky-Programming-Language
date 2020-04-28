@@ -30,7 +30,7 @@ public class App {
 	public void run(String fileName) {
 		consultFile("Intepreter.pl");
 		Term parseTree = createParseTree(fileName);
-		System.out.println("Parse Tree -> " + parseTree);
+		//System.out.println("Parse Tree -> " + parseTree);
 		evaluateProgram(parseTree);
 	}
 
@@ -43,7 +43,7 @@ public class App {
 		String fileSeparator = System.getProperty("file.separator");
 		Query consultQuery = new Query("consult",
 				new Term[] { new Atom("src" + fileSeparator + "resources" + fileSeparator + fileName) });
-		System.out.println("Consult " + (consultQuery.hasSolution() ? "succeeded" : "failed"));
+		consultQuery.hasSolution();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class App {
 			tokensList = tokensList.replaceAll("[(]", "'('");
 			tokensList = tokensList.replaceAll("[)]", "')'");
 			tokensList = tokensList.replaceAll("[\"]", "\'\"\'");
-			System.out.println(tokensList);
+			//System.out.println(tokensList);
 		}
 		Query parseTreeQuery = new Query("program(R, [" + tokensList + "],[]).");
 		return parseTreeQuery.hasSolution() ? parseTreeQuery.oneSolution().get("R") : null;
@@ -85,7 +85,7 @@ public class App {
 		Query evaluationQuery = new Query("eval_program(" + parseTree + ",S)");
 		Map<String, Term>[] result = evaluationQuery.allSolutions();
 		for (int i = 0; i < result.length; i++) {
-			System.out.println("Result = " + result[i].get("S"));
+			//System.out.println("Result = " + result[i].get("S"));
 		}
 		if (result.length == 0) {
 			System.out.println("Failed");
