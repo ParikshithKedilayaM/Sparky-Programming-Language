@@ -18,10 +18,10 @@ block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 */
 declrList(t_declrList(X,Y)) --> declR(X), endLine,declrList(Y).
 declrList(t_declrList(X)) --> declR(X), endLine.
-declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
-declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Y),['"'].
-declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
-declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],identifier(Y).
+%declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
+%declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Y),['"'].
+%declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
+declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],expr(Y).
 declR(X) --> var, identifierList(X).
 declR(t_init_list(X)) --> [list], identifier(X).
 identifierList(t_identifierList(X,Y)) --> identifier(X),[','], identifierList(Y).
@@ -50,21 +50,21 @@ commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[+,+],{Y=t_add(X,1
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[-,-],{Y=t_sub(X,1)}.
 
 
-list_push(t_list_push_first(X,Y)) --> identifier(X),[.],[pushFirst],['('],expr(Y),[')'].
-list_push(t_list_push_last(X,Y)) --> identifier(X),[.],[pushLast],['('],expr(Y),[')'].
+list_push(t_list_push_first(X,Y)) --> identifier(X),[-,>],[pushFirst],['('],expr(Y),[')'].
+list_push(t_list_push_last(X,Y)) --> identifier(X),[-,>],[pushLast],['('],expr(Y),[')'].
 
 
 
-list_pop(t_list_pop_first(X)) --> identifier(X),[.],[popFirst],['('],[')'].
-list_pop(t_list_pop_first_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popFirst],['('],[')'].
+list_pop(t_list_pop_first(X)) --> identifier(X),[-,>],[popFirst],['('],[')'].
+list_pop(t_list_pop_first_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[-,>],[popFirst],['('],[')'].
 
 
-list_pop(t_list_pop_last(X)) --> identifier(X),[.],[popLast],['('],[')'].
-list_pop(t_list_pop_last_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[.],[popLast],['('],[')'].
+list_pop(t_list_pop_last(X)) --> identifier(X),[-,>],[popLast],['('],[')'].
+list_pop(t_list_pop_last_assign(X,Y)) --> identifier(Y), [:,=], identifier(X),[-,>],[popLast],['('],[')'].
 
 
-list_isEmpty(t_list_isempty(X)) --> identifier(X),[.],[isEmpty],['('],[')'].
-list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[.],[isEmpty],['('],[')'].
+list_isEmpty(t_list_isempty(X)) --> identifier(X),[-,>],[isEmpty],['('],[')'].
+list_isEmpty(t_list_isempty_assign(X,Y)) -->identifier(Y),[:,=], identifier(X),[-,>],[isEmpty],['('],[')'].
 
 
 
@@ -101,7 +101,7 @@ boolean3(t_booleanExprCond(X,Y,Z)) --> boolean3(X),conditional(Y),boolean4(Z).
 boolean3(X) --> boolean4(X).
 boolean3(X) -->['('], boolean(X),[')'].
 
-boolean4(X) --> booleanI(X).
+%boolean4(X) --> booleanI(X).
 boolean4(X) --> expr(X).
 
 conditional(>) --> [>].
@@ -127,7 +127,7 @@ term(X) --> factor(X).
 factor(X) --> ['('],expr(X),[')'].
 factor(X) --> digit(X).
 factor(X) --> identifier(X).
-%factor(t_boolean(X)) --> booleanI(X).
+factor(X) --> booleanI(X).
 factor(X) -->['"'], anystring(X),['"'].
 
 display(t_display(X)) --> [display],['('],expr(X),[')'].
@@ -142,10 +142,7 @@ eval_block(t_block(X,Y), EnvIn, EnvOut) :- eval_declrList(X,EnvIn, Env1), eval_c
 eval_declrList(t_declrList(X,Y),EnvIn, EnvOut) :- eval_declR(X,EnvIn, Env1), eval_declrList(Y, Env1, EnvOut).
 eval_declrList(t_declrList(X),EnvIn, EnvOut):- eval_declR(X,EnvIn, EnvOut).
 
-eval_declR(t_assign(t_id(X),Y), EnvIn, EnvOut) :- eval_booleanI(Y),update(X,Y, EnvIn, EnvOut).
-eval_declR(t_assign(t_id(X),Y), EnvIn, EnvOut) :- number(Y),update(X,Y, EnvIn, EnvOut).
-eval_declR(t_assign(t_id(X),Y), EnvIn, EnvOut) :- eval_string(Y,EnvIn,EnvIn,Val),update(X,Val, EnvIn, EnvOut).
-
+eval_declR(t_assign_id(t_id(X),Y),EnvIn, EnvOut) :-eval_expr(Y,EnvIn,EnvOut1,Val), update(X,Val,EnvOut1,EnvOut).
 
 eval_declR(t_identifierList(X,Y), EnvIn, EnvOut) :- eval_declR(X, EnvIn, Env1), eval_declR(Y,Env1,EnvOut).
 eval_declR(t_id(X), EnvIn, EnvOut) :- update(X,0,EnvIn,EnvOut).
@@ -153,10 +150,9 @@ eval_declR(t_init_list(t_id(X)),EnvIn,EnvOut) :- update(X,([]),EnvIn,EnvOut).
 
 eval_commandList(t_commandList(X,Y),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, Env1), eval_commandList(Y, Env1, EnvOut).
 eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOut).
-eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :- lookup(X,EnvIn,_),
-    eval_expr(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
-%eval_commandI(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-
-%    eval_expr_str(Y, EnvIn, Env1, Val) , update(X,Val,Env1, EnvOut).
+eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_id(X,EnvIn,EnvIn,_Val1),eval_Identity(X,Id),
+    eval_expr(Y, EnvIn, Env1, Val) ,update(Id,Val,Env1, EnvOut).
+
 eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
@@ -237,6 +233,9 @@ eval_commandIFor(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-eval_expr(Y, Env
                                                                 update(X,Val,Env1, EnvOut).
 
 
+
+
+
 push_first(X,[],[X]).
 push_first(X,L,[X|L]):- L \=[].
 
@@ -315,8 +314,6 @@ eval_bool(t_booleanExprCond(X,or,Y),EnvIn,EnvOut,true):- eval_bool(X,EnvIn,Env1,
 eval_bool(t_booleanExprCond(X,or,Y),EnvIn,EnvOut,false):- eval_bool(X,EnvIn,Env1,false),
     eval_bool(Y,Env1,EnvOut,false).
 
-
-
 eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_bool(B,EnvIn,EnvOut,Val1),
                                                 not(Val1,Val).
 eval_bool(t_booleanNegate(B),EnvIn,EnvOut,Val):-eval_id(B,EnvIn,EnvOut,Val1),
@@ -388,8 +385,12 @@ eval_expr(t_id_expr_equality(X,Y),EnvIn,EnvOut,Result):-eval_expr(Y,EnvIn,EnvOut
 eval_expr(X,Env,Env,X) :- number(X).
 eval_expr(X,Env,Env,Val):- eval_string(X,Env,Env,Val).
 eval_expr(X,EnvIn,EnvOut,Result) :- eval_id(X,EnvIn,EnvOut,Result).
+eval_expr(X,EnvIn,EnvOut,Result) :- eval_bool(X,EnvIn,EnvOut,Result).
 eval_id(t_id(X),EnvIn,EnvIn,Result):- lookup(X,EnvIn,Result).
+eval_id(t_id(X),EnvIn,EnvIn,Result):- \+lookup(X,EnvIn,Result),write("VARIABLE ") ,  write(X), write(" NOT INITIALIZED"),nl, fail.
 eval_string(t_string(X),Env, Env, Val):- Val = X.
+eval_Identity(t_id(X),X).
+
 
 lookup(Id,[(Id,Val)|_],Val).
 lookup(Id,[_|T],Val):- lookup(Id,T,Val).
