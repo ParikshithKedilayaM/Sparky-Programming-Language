@@ -2,7 +2,7 @@
 
 # Installation Guide
 This document gives the installation steps required to set up and runs our Programming
-language - Sparky
+language - Sparky. The executing Environment is Microsoft Windows.
 # Environment Setup
 1. Install SWI-SH Prolog installed on the system and environment path variables should be
 set. Detailed instructions to install SWI-SH Prolog is found here
@@ -13,8 +13,8 @@ installation guide here . You can download Maven here .
 4. Download Sparky source code from git to an empty folder.
 # Execution Steps for Terminal / Command Prompt
 1. Open the downloaded source code folder in the terminal/command prompt.
-2. Run the following commands:
-mvn clean compile assembly:single
+2. Run the following commands: <br />
+mvn clean compile assembly:single <br />
 java -jar target \ sparky-0 .0.1-SNAPSHOT-jar-with-dependencies.jar
 # To Run custom files
 java -jar target \ sparky-0 .0.1-SNAPSHOT-jar-with-dependencies.jar
