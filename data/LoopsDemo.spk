@@ -1,0 +1,41 @@
+begin
+	var a := 5;
+	var b := 6;
+	var c := 7;
+	
+	
+	print("Test for if");
+	
+	if (a == b or b != c)
+	then
+	print("Inside If");
+	else
+	print("Inside Else");
+	endif;
+	
+	
+	print("Test for While");
+	
+	while ( a < 10)
+	do 
+		print(a);
+		a++;
+	endwhile;
+	
+	
+	
+	
+	print("Test for traditional for loop");
+	for(i := 0; i <10; i++)
+	do 
+		print(i);
+	endfor;
+	
+	print("Test for advanced for loop");
+	for j in range(10 to 1)
+	do 
+		print(j);
+	endfor;
+	
+	
+end

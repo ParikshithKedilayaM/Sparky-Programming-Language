@@ -1,0 +1,7 @@
+begin
+	var var1 := "Hello";
+	var var2 := " World!";
+	
+	print(var1 + var2 );
+	print("Hello" + var2);
+end

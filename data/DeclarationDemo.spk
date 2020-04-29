@@ -1,0 +1,11 @@
+begin
+	var teamName := "Team7";
+	var teamMembers := 4;
+	var emptyInitalize ;
+	list listExample ;
+	
+	print(teamName);
+	print(teamMembers);
+	print(emptyInitalize);
+	print(listExample);
+end
