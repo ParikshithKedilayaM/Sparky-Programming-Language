@@ -15,7 +15,7 @@ installation guide here . You can download Maven here .
 1. Open the downloaded source code folder in the terminal/command prompt.
 2. Run the following commands: <br />
 mvn clean compile assembly:single <br />
-java -jar target \ sparky-0 .0.1-SNAPSHOT-jar-with-dependencies.jar
+java -jar target\sparky-0 .0.1-SNAPSHOT-jar-with-dependencies.jar
 # To Run custom files
-java -jar target \ sparky-0 .0.1-SNAPSHOT-jar-with-dependencies.jar
+java -jar target\sparky-0 .0.1-SNAPSHOT-jar-with-dependencies.jar
 << full_path_to_your_file_with_filename .spk >>
