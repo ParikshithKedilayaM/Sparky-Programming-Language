@@ -1,0 +1,14 @@
+begin
+	var tr :="TRUE";
+	var fl := "FALSE";
+	var x := 8;
+	var y := 5;
+	var z := 6;
+	var t := 6;
+	if (x != y and t == z  or z != t and !t == z and true)
+	then
+	    print(tr);
+	else
+		print(fl);
+	endif;
+end

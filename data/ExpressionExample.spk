@@ -1,0 +1,28 @@
+begin
+
+var num1 := 1.1;
+var num2 := 2.2;
+var str1 := "SER";
+var str2 := "502";
+var str,add,sub,mul,div;
+
+add := num1+num2;
+sub := num1-num2;
+mul := num1*num2;
+div := num1/num2;
+str := str1+str2;
+
+print("ExpressipnEvaluation");
+print(add);
+print(sub);
+print(mul);
+print(div);
+print("StringConcatination:");
+print("Str1:");
+print(str1);
+print("Str2:");
+print(str2);
+print("Str1+Str2:");
+print(str);
+
+end
