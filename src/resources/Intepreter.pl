@@ -294,12 +294,17 @@ greaterThanorEqual(Val1,Val2,false) :- Val1 < Val2.
 lessThanorEqual(Val1,Val2,true) :- Val1 =< Val2.
 lessThanorEqual(Val1,Val2,false) :- Val1 > Val2.
 
+equalForAnd(true,true,true).
+equalForAnd(true,false,false).
+equalForAnd(false,_,false).
+
 eval_bool(true,Env,Env,true).
 eval_bool(false,Env,Env,false).
 
+
 eval_bool(t_booleanExprCond(X,and,Y),EnvIn,EnvOut,Val):- eval_bool(X,EnvIn,Env1,Val1),
       eval_bool(Y,Env1,EnvOut,Val2),
-      equal(Val1,Val2,Val).
+      equalForAnd(Val1,Val2,Val).
 
 eval_bool(t_booleanExprCond(X,or,_Y),EnvIn,EnvOut,true):- eval_bool(X,EnvIn,EnvOut,true).
 
