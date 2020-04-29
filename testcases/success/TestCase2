@@ -19,5 +19,5 @@ begin
 	do
 		y:= x+y==y+xyz? x+1: y+1;
 	endwhile;
-	display(y);
+	print(y);
 end.

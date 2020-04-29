@@ -7,12 +7,12 @@ begin
 	var t := 6;
 	var w,b,c,m,a,k;
     var name := "Ashutosh";
-    	display(name);
+    	print(name);
 	if (x != y and t == z  or z != t and !t == z and true)
 	then
-	    display(tr);
+	    print(tr);
 	else
-	display(fl);
+	print(fl);
 	endif;
 
 end.

@@ -14,96 +14,96 @@ var while_var := 4;
 var ternary ;
 var y := true ;
 
-display("Test for assignment init");
-display(y);
+print("Test for assignment init");
+print(y);
 
 
-display("Tests for Strings");
-display(a + b);
+print("Tests for Strings");
+print(a + b);
 
-display("Tests for mathematical operations");
+print("Tests for mathematical operations");
 add := num1+num2;
 sub := num1-num2;
 mul := num1*num2;
 div := num1/num2;
 
 
-display(add);
-display(sub);
-display(mul);
-display(div);
+print(add);
+print(sub);
+print(mul);
+print(div);
 
 
 
 
-display("Tests for ternary operator");
+print("Tests for ternary operator");
 
 ternary := num1==num2 ? true : false;
-display(ternary);
+print(ternary);
 
 ternary := a==c ? num1 + num2 : false;
-display(ternary);
+print(ternary);
 
 
 
-display("Tests for if then else");
+print("Tests for if then else");
 
 if (true and false and true)
 then
-display(num1);
+print(num1);
 else
-display(num2);
+print(num2);
 endif;
 
 
 
 
-display("Tests for FOR loop");
+print("Tests for FOR loop");
 
 for( z := 1; z < num1*num2; z++)
 do
-display(1.1*2.2);
+print(1.1*2.2);
 endfor;
 
-display("Tests for FOR dec loop");
+print("Tests for FOR dec loop");
 for( z := 4; z >= 0; z--)
 do
-	display("Tests for FOR dec loop");
+	print("Tests for FOR dec loop");
 	for( t := 4; t >= 0; t--)
 	do
-	display("I am inside two for loops");
-	display(z);
-	display(t);
+	print("I am inside two for loops");
+	print(z);
+	print(t);
 endfor;
 endfor;
 
 
 
-display("Tests for Adv FOR loop");
+print("Tests for Adv FOR loop");
 
 for y  in range (1 to 4)
 do
 	for tuv  in range (1 to 4)
 	do
-	display("I am inside two advanced for loops");
-	display(y);
-	display(tuv);
+	print("I am inside two advanced for loops");
+	print(y);
+	print(tuv);
 endfor;
 endfor;
 
 
 
 
-display("Tests for Adv FOR dec loop");
+print("Tests for Adv FOR dec loop");
 
 for y  in range (10 to 1)
 do
-display(y);
+print(y);
 endfor;
 
 while(num1 < while_var)
 do
-display("I am inside while");
+print("I am inside while");
 num1++;
 endwhile;
 
