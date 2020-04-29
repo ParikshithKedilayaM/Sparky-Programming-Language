@@ -20,4 +20,4 @@ begin
 		y:= x+y==y+xyz? x+1: y+1;
 	endwhile;
 	print(y);
-end.
+end

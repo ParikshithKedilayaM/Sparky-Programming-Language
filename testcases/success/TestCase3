@@ -2,17 +2,17 @@ begin
 	var x,b,c;
 	var name := "chandan";
 	list x;
-	c := x.isEmpty();
+	c := x->isEmpty();
 	print(c);
-	x.pushFirst(5);
-	x.pushFirst(6);
-	b := x.popFirst();
-	x.pushFirst(8);
-	x.pushLast(9);
-	c := x.popLast();
+	x->pushFirst(5);
+	x->pushFirst(6);
+	b := x->popFirst();
+	x->pushFirst(8);
+	x->pushLast(9);
+	c := x->popLast();
 	print(x);
 	print(b);
 	print(c);
 	
 	print(name);
-end.
+end

@@ -21,4 +21,4 @@ begin
 		endif;
 	endwhile;
 	print(y);
-end.
+end

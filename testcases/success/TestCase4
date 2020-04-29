@@ -8,14 +8,14 @@ begin
 	var w,b,c,m,a,k;
     var name := "Nagarjun";
     list p;
-    c := p.isEmpty();
+    c := p->isEmpty();
     print(c);
-    p.pushFirst(5);
-    p.pushFirst(6);
-    b := p.popFirst();
-    p.pushFirst(8);
-    p.pushLast(9);
-    c := p.popLast();
+    p->pushFirst(5);
+    p->pushFirst(6);
+    b := p->popFirst();
+    p->pushFirst(8);
+    p->pushLast(9);
+    c := p->popLast();
     print(p);
     print(b);
     print(c);
@@ -53,4 +53,4 @@ begin
             print(i);
         endfor;
     endif;
-end.
+end

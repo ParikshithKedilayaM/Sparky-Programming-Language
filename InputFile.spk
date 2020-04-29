@@ -12,7 +12,7 @@ var while_var := 4;
 
 
 var ternary ;
-var else := true ;
+var y := true ;
 
 print("Test for assignment init");
 print(y);
