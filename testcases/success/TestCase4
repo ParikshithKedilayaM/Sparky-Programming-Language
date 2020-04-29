@@ -9,48 +9,48 @@ begin
     var name := "Nagarjun";
     list p;
     c := p.isEmpty();
-    display(c);
+    print(c);
     p.pushFirst(5);
     p.pushFirst(6);
     b := p.popFirst();
     p.pushFirst(8);
     p.pushLast(9);
     c := p.popLast();
-    display(p);
-    display(b);
-    display(c);
-    display(name);
+    print(p);
+    print(b);
+    print(c);
+    print(name);
 	if (x != y and t == z  or z != t and true and true)
 	then
 	    for(i := 0;i<11;i := i+1)
 	    do
-	        display(i);
+	        print(i);
 	    endfor;
-	    display("While");
+	    print("While");
 	    while(i<20)
 	    do
-	        display(i);
+	        print(i);
 	        i:=i+1;
 	    endwhile;
 	else
-	    display(fl);
+	    print(fl);
 	endif;
 	a:=t==6?10:11;
-	display("a");
-    display(a);
+	print("a");
+    print(a);
 	k:=z==6?x+2:y;
-	display("k");
-    display(k);
+	print("k");
+    print(k);
     a:=z==2?x:y+5;
-    display("a");
-    display(a);
+    print("a");
+    print(a);
     if(a==10)
     then
-        display("Nothing");
+        print("Nothing");
     else
         for i in range(10 to 15)
         do
-            display(i);
+            print(i);
         endfor;
     endif;
 end.
