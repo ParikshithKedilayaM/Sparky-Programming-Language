@@ -12,3 +12,49 @@ Everyone contributed individually towards the testing of the grammar.
 for milestone 2:
 Chandan & Nagarjun: will be building the lexical analyzer and parse tree generator.
 Parikshith & Ashutosh: will be building the interpreter and integration of all components.
+
+
+
+
+Milestone 2 update:
+
+Chandan Kiragadalu Javaregowda:
+
+●	Worked on lexer (token generation) part of the java application. It reads the program written by the programmer through an input file and generates tokens based on the rules we defined which were required for our programming language.
+●	Commands in the program which includes decision-making predicates like if, else     statements, loops like for, advanced for and while loops were included.
+●	List predicates which involved isEmpty, pushFirst, pushLast, popFirst, popLast tree nodes were added which gives the programmers freedom to use list as both queue and stack according to the need.
+●	Error handling for uninitialized variables
+●	List predicate was introduced to our programming language. We can initialize a list using the “list” keyword. To check if the list is empty or not, isEmpty predicate was added.
+●	Testing - extensive testing of the program was done with multiple scenarios and test cases
+
+
+Parikshith Kedilaya Mallar:
+
+●	Worked on building the main java application which binds lexer and parser and displays output to the console.
+●	The program uses Maven repository to download essential library jars to compile and run over code.
+●	The program consults prolog using the JPL library and executes the prolog queries directly from Java.
+●	Worked on parse tree generation of the basic structure of the code, variables, and expression evaluation.
+●	Error handling: Handle general prolog errors in java code.
+●	Special character: Worked on handling special characters in strings of the language.
+●	Testing: Did multiple rounds of testing of the language
+
+
+Ashutosh:
+●	Evaluation of the declaration section. It will handle the declaration of identifiers of all the supported data types.
+●	Evaluation of command section including expressions, strings, boolean expressions, and conditional constructs.
+●	String handling and operations. Concatenation of string. Support for usage in all the constructs. 
+●	Evaluation of boolean operators. Assigning the precedence for all the operators. Usage and evaluation of all the conditional operators. Evaluation of multiple boolean expressions with and without brackets. 
+●	Evaluation of if constructs and ternary operations.The if-then-else-endif. If-then-endif. Ternary ’?’ ‘:’. Supported nested if evaluations.
+●	Evaluation of basic mathematical operations. Addition. Subtraction. Division. Multiplication.Brackets. Nested evaluations for all expressions.
+●	Testing for all the constructs for which the evaluation was implemented.
+	
+
+Nagarjun
+●	Parse tree evaluation was taken care of.
+●	Error handling for the initialization of a variable.
+●	Evaluation for the traditional for loop.
+●	Evaluation for the advanced for a loop. The range will be provided in the “for” advanced for either in ascending order or descending order. The developer need not specify the order. The program will take care of the order.
+●	Evaluation of nested for loop for both advanced and traditional for loop.
+●	Evaluation of the while and nested while loops.
+●	Testing for all the constructs for which the evaluation was implemented.
+●	Integration testing of all the components including lexical analysis and parsing. 
