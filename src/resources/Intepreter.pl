@@ -1,13 +1,14 @@
 %:- use_rendering(svgtree).
+keyWords(X):- member(X,[for,if,then, while, endif, else, endfor, endwhile,do, true, false, list,isEmpty, pushFirst,
+                          pushLast,popFirst, popLast, print, begin, end, var]),write(X),write(" is a keyword. It cannot be initialized."),nl,abort.
 endLine --> [;].
-endPeriod --> [.].
 equal --> [=].
 var --> [var].
 begin --> [begin].
 end --> [end].
 
 digit(X) --> [X], {number(X)} .
-identifier(t_id(X)) --> [X],{atom(X), X \= true, X \= false}.
+identifier(t_id(X)) --> [X],{atom(X), keyWords(X)}.
 anystring(t_string(X)) --> [X],{atom(X)}.
 
 program(t_program(X)) --> block(X).
@@ -18,9 +19,6 @@ block(t_block(X,Y)) --> begin, declrList(X),commandList(Y),end.
 */
 declrList(t_declrList(X,Y)) --> declR(X), endLine,declrList(Y).
 declrList(t_declrList(X)) --> declR(X), endLine.
-%declR(t_assign(X,Y)) --> var, identifier(X),[:,=],digit(Y).
-%declR(t_assign(X,Y)) --> var, identifier(X),[:,=],['"'],anystring(Y),['"'].
-%declR(t_assign(X,Y)) --> var, identifier(X),[:,=],booleanI(Y).
 declR(t_assign_id(X,Y)) --> var, identifier(X),[:,=],expr(Y).
 declR(X) --> var, identifierList(X).
 declR(t_init_list(X)) --> [list], identifier(X).
@@ -33,7 +31,7 @@ identifierList(X) --> identifier(X).
 */
 commandList(t_commandList(X,Y)) --> commandI(X),endLine,commandList(Y).
 commandList(t_commandList(X)) --> commandI(X),endLine.
-commandI(X) --> display(X).
+commandI(X) --> print(X).
 commandI(X) --> commandInitialize(X).
 commandI(X) --> ifEval(X).
 commandI(X) --> forEval(X).
@@ -45,7 +43,6 @@ commandI(X) --> list_pop(X).
 commandI(X) --> list_isEmpty(X).
 
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],expr(Y).
-%commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[:,=],['"'],anystring(Z),{atom_string(Z,Y)},['"'].
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[+,+],{Y=t_add(X,1)}.
 commandInitialize(t_commandInitialize(X,Y)) --> identifier(X),[-,-],{Y=t_sub(X,1)}.
 
@@ -101,7 +98,6 @@ boolean3(t_booleanExprCond(X,Y,Z)) --> boolean3(X),conditional(Y),boolean4(Z).
 boolean3(X) --> boolean4(X).
 boolean3(X) -->['('], boolean(X),[')'].
 
-%boolean4(X) --> booleanI(X).
 boolean4(X) --> expr(X).
 
 conditional(>) --> [>].
@@ -130,7 +126,7 @@ factor(X) --> identifier(X).
 factor(X) --> booleanI(X).
 factor(X) -->['"'], anystring(X),['"'].
 
-display(t_display(X)) --> [display],['('],expr(X),[')'].
+print(t_print(X)) --> [print],['('],expr(X),[')'].
 
 
 /*--------------------------------------Program Evaluation--------------------------------------*/
@@ -153,7 +149,7 @@ eval_commandList(t_commandList(X),EnvIn, EnvOut) :- eval_commandI(X,EnvIn, EnvOu
 eval_commandI(t_commandInitialize(X,Y),EnvIn,EnvOut) :- eval_id(X,EnvIn,EnvIn,_Val1),eval_Identity(X,Id),
     eval_expr(Y, EnvIn, Env1, Val) ,update(Id,Val,Env1, EnvOut).
 
-eval_commandI(t_display(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
+eval_commandI(t_print(X),EnvIn,EnvOut) :- eval_expr(X, EnvIn,EnvOut, Val),write(Val),nl.
 
 % Evaluation Logic for IF loop and If-then-else-----------------------------------------------------------------------
 eval_commandI(t_ifEval(X,Y),EnvIn,EnvOut):- eval_bool(X,EnvIn,EnvOut1,true),
@@ -228,6 +224,8 @@ eval_commandI(t_list_isempty_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,E
 
 eval_commandI(t_list_isempty_assign(t_id(X),t_id(Y)),EnvIn,EnvOut) :- lookup(X,EnvIn,Val), length(Val,Val1),Val1 > 0,
     update(Y,false,EnvIn,EnvOut).
+
+eval_commandI(X,Env,NewEnv):-eval_block(X,Env,NewEnv).
 
 eval_commandIFor(t_commandInitialize(t_id(X),Y),EnvIn,EnvOut) :-eval_expr(Y, EnvIn, Env1, Val),
                                                                 update(X,Val,Env1, EnvOut).

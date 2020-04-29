@@ -1,10 +1,110 @@
 begin
+
 var a := "Team07";
 var b := "Special Characters $%&*";
-var d := true;
-var aa := 1.1;
-var bb:= 99.99;
+var c := "Team07";
+
+var num1 := 1.1;
+var num2 := 2.2;
+
 var add, sub, mul, div;
-add := aa + bb + aa + bb;
-display(add);
+var while_var := 4;
+
+
+var ternary ;
+var else := true ;
+
+print("Test for assignment init");
+print(y);
+
+
+print("Tests for Strings");
+print(a + b);
+
+print("Tests for mathematical operations");
+add := num1+num2;
+sub := num1-num2;
+mul := num1*num2;
+div := num1/num2;
+
+
+print(add);
+print(sub);
+print(mul);
+print(div);
+
+
+
+
+print("Tests for ternary operator");
+
+ternary := num1==num2 ? true : false;
+print(ternary);
+
+ternary := a==c ? num1 + num2 : false;
+print(ternary);
+
+
+
+print("Tests for if then else");
+
+if (true and false and true)
+then
+print(num1);
+else
+print(num2);
+endif;
+
+
+
+
+print("Tests for FOR loop");
+
+for( z := 1; z < num1*num2; z++)
+do
+print(1.1*2.2);
+endfor;
+
+print("Tests for FOR dec loop");
+for( z := 4; z >= 0; z--)
+do
+	print("Tests for FOR dec loop");
+	for( t := 4; t >= 0; t--)
+	do
+	print("I am inside two for loops");
+	print(z);
+	print(t);
+endfor;
+endfor;
+
+
+
+print("Tests for Adv FOR loop");
+
+for y  in range (1 to 4)
+do
+	for tuv  in range (1 to 4)
+	do
+	print("I am inside two advanced for loops");
+	print(y);
+	print(tuv);
+endfor;
+endfor;
+
+
+
+
+print("Tests for Adv FOR dec loop");
+
+for y  in range (10 to 1)
+do
+print(y);
+endfor;
+
+while(num1 < while_var)
+do
+print("I am inside while");
+num1++;
+endwhile;
+
 end
