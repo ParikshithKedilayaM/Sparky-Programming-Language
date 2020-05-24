@@ -1,4 +1,4 @@
-# Sparky Programming Language
+# SPARKY Programming Language
 A cool new programming language that is dynamically typed and allows users to write complex algorithms and solve problems without worrying much about variable types. Our special feature programmers full flexibilty to switch between data types on the run!
 
 # Installation Guide
